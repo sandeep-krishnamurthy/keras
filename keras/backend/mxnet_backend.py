@@ -3873,6 +3873,16 @@ def _preprocess_convnd_kernel(kernel, data_format):
     return kernel
 
 
+def _validate_conv_input_shape(input_shape):
+    # MXNet convolution operator cannot automatically infer shape.
+    # Feature requirement -
+    nd = len(input_shape) - 2
+    for dim in range(nd):
+        if not input_shape[2 + dim]:
+            raise ValueError("MXNet Backend: Cannot automatically infer shape for convolution operator."
+                             "Please provide input shape. Given input shape - ", input_shape)
+
+
 def _calculate_padding_requirement(input_shape, kernel, strides, dilation, border_mode):
     out_size = _calculate_conv_output_size(input_shape, kernel, border_mode, strides, dilation)
     pad_along = dilation * kernel - input_shape - strides - dilation + out_size * strides + 1
@@ -3884,6 +3894,7 @@ def _preprocess_padding_mode(padding_mode, input_shape, kernel, strides, dilatio
     nd = len(input_shape) - 2
     is_slice = (False,) * nd
     out_size = (0,) * nd
+    _validate_conv_input_shape(input_shape)
     if padding_mode == 'same' or padding_mode == 'full':
         padding, is_slice, out_size = zip(
             *[_calculate_padding_requirement(input_shape[2 + i], kernel[i],
