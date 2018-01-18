@@ -248,6 +248,8 @@ def variable(value, dtype=None, name=None, constraint=None):
         ret._keras_shape = tuple([d if d != 0 else None for d in value.shape])
     elif hasattr(value, 'shape'):
         ret._keras_shape = tuple([d if d != 0 else None for d in map(int, value.shape)])
+    ret._uses_learning_phase = False
+
     return ret
 
 
@@ -361,6 +363,7 @@ def placeholder(shape=None, ndim=None, dtype=None, sparse=False, name=None):
     sym = _keras_variable(name, shape=shape, dtype=dtype)
     sym._keras_shape = tuple([d if d != 0 else None for d in shape])
     sym._mxnet_placeholder = True
+    sym._uses_learning_phase = False
     return sym
 
 
@@ -2581,22 +2584,31 @@ def in_train_phase(x, alt, training=None):
         Either `x` or `alt` based on the `training` flag.
         the `training` flag defaults to `K.learning_phase()`.
     """
+    uses_learning_phase = False
+
     if training is None:
         training = learning_phase()
+        uses_learning_phase = True
 
-    if training is 1:
+    if training is 1 or training is True:
         if callable(x):
-            return x()
+            res = x()
         else:
-            return x
-    elif training is 0:
+            res = x
+        if isinstance(x, KerasSymbol):
+            uses_learning_phase = True
+    elif training is 0 or training is False:
         if callable(alt):
-            return alt()
+            res = alt()
         else:
-            return alt
+            res = alt
+    else:
+        # assume learning phase is a placeholder tensor.
+        res = switch(training, x, alt)
 
-    x = switch(training, x, alt)
-    return x
+    if uses_learning_phase:
+        res._uses_learning_phase = True
+    return res
 
 
 def in_test_phase(x, alt, training=None):
@@ -3958,14 +3970,14 @@ def get_model():
     Inherits and extends keras.engine.Model class.
 
     # Returns
-        MXNetModel reference
+        MXNet Model reference
     """
     import importlib
     engine = importlib.import_module('keras.engine.training')
 
-    class MXNetModel(engine.Model):
+    class Model(engine.Model):
         def __init__(self, inputs, outputs, name=None, context=None, kvstore='device', **kwargs):
-            super(MXNetModel, self).__init__(inputs, outputs, name)
+            super(Model, self).__init__(inputs, outputs, name)
             self._num_data = len(self.inputs)
             self._num_label = len(self.outputs) + len(self.output_names)
 
@@ -4009,7 +4021,7 @@ def get_model():
 
         def compile(self, optimizer, loss, metrics=None, loss_weights=None,
                     sample_weight_mode=None, **kwargs):
-            super(MXNetModel, self).compile(
+            super(Model, self).compile(
                 optimizer, loss, metrics, loss_weights,
                 sample_weight_mode, **kwargs)
 
@@ -4083,7 +4095,7 @@ def get_model():
             set_model(self)
 
         def _adjust_module(self, inputs, phase):
-            if not hasattr(self, '_module'):
+            if not self._module:
                 raise RuntimeError('You must compile your model before using it.')
             if self._num_data + self._num_label == len(inputs) - 1:
                 inputs = inputs[:-1]
@@ -4194,7 +4206,7 @@ def get_model():
 
             self.predict_function = predict_function
 
-    return MXNetModel
+    return Model
 
 
 def get_optimizers():
