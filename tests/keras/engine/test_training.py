@@ -459,7 +459,7 @@ def test_model_methods():
                                                  sequence_length=sequence_length))
     assert np.shape(out[0]) == shape_0 and np.shape(out[1]) == shape_1
 
-    # MXNet backend do not support multi-input model.
+    # MXNet backend does not support multi-input model yet.
     # Tracked in the issue - https://github.com/deep-learning-tools/keras/issues/20
     if K.backend() != 'mxnet':
         # Create a model with a single output.
@@ -742,7 +742,7 @@ def test_model_with_input_feed_tensor():
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support models with partial loss yet')
+                    reason='MXNet backend does not support models with partial loss yet.')
 @keras_test
 def test_model_with_partial_loss():
     a = Input(shape=(3,), name='input_a')
@@ -787,7 +787,7 @@ def test_model_with_partial_loss():
 
 @keras_test
 @pytest.mark.skipif((K.backend() == 'cntk' or K.backend() == 'mxnet'),
-                    reason='cntk/mxnet does not support external loss yet')
+                    reason='cntk/mxnet do not support external loss yet')
 def test_model_with_external_loss():
     # None loss, only regularization loss.
     a = Input(shape=(3,), name='input_a')

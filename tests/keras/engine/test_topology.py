@@ -666,7 +666,7 @@ def test_recursion_with_bn_and_loss():
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not fully support Embedding layer.')
+                    reason='MXNet backend does not fully support Embedding layer yet.')
 @keras_test
 def test_shared_layer_depth_is_correct():
     # Basic outline here: we have a shared embedding layer, and two inputs that go through
@@ -697,7 +697,7 @@ def test_shared_layer_depth_is_correct():
 
 # https://github.com/deep-learning-tools/keras/issues/20
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support predict without compile.'
+                    reason='MXNet backend does not support predict without compile.'
                            'To be fixed.')
 @keras_test
 def test_layer_sharing_at_heterogeneous_depth():
@@ -723,7 +723,7 @@ def test_layer_sharing_at_heterogeneous_depth():
 
 # https://github.com/deep-learning-tools/keras/issues/20
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support predict without compile.'
+                    reason='MXNet backend does not support predict without compile.'
                            'To be fixed.')
 @keras_test
 def test_layer_sharing_at_heterogeneous_depth_with_concat():

@@ -36,7 +36,7 @@ def test_resnet50():
     assert model.output_shape == (None, 1000)
 
 
-# MXNet backend do not support auto infer input shape for convolution operator.
+# MXNet backend does not support auto infer input shape for convolution operator.
 # https://github.com/apache/incubator-mxnet/issues/9458
 @pytest.mark.skipif((K.backend() == 'mxnet'),
                     reason='MXNet backend requires input shape for convolution')
@@ -321,8 +321,7 @@ def test_inceptionresnetv2_pooling():
     assert output_shape == (None, 1536)
 
 
-@pytest.mark.skipif((K.backend() == 'mxnet'),
-                    reason='MXNet backend requires input shape for convolution')
+
 @keras_test
 def test_inceptionresnetv2_variable_input_channels():
     def model_fn(input_shape):

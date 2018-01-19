@@ -44,7 +44,7 @@ def test_maxout_dense():
 
 # https://github.com/deep-learning-tools/keras/issues/20
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support predict without compile.'
+                    reason='MXNet backend does not support predict without compile.'
                            'To be fixed.')
 @keras_test
 def test_merge():
@@ -188,7 +188,7 @@ def test_merge():
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support bool dtype')
+                    reason='MXNet backend deso not support bool dtype yet.')
 @keras_test
 def test_merge_mask_2d():
     rand = lambda *shape: np.asarray(np.random.random(shape) > 0.5, dtype='int32')
@@ -223,7 +223,7 @@ def test_merge_mask_2d():
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support RNN yet')
+                    reason='MXNet backend does not support RNN yet.')
 @keras_test
 def test_merge_mask_3d():
     rand = lambda *shape: np.asarray(np.random.random(shape) > 0.5, dtype='int32')
@@ -248,7 +248,7 @@ def test_merge_mask_3d():
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support LSTM yet')
+                    reason='MXNet backend does not support LSTM yet.')
 @keras_test
 def test_sequential_regression():
     # start with a basic example of using a Sequential model

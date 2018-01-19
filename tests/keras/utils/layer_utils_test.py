@@ -12,7 +12,7 @@ from keras.utils.test_utils import keras_test
 
 # https://github.com/deep-learning-tools/keras/issues/20
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not support predict without compile.'
+                    reason='MXNet backend does not support predict without compile.'
                            'To be fixed.')
 @keras_test
 def test_convert_weights():

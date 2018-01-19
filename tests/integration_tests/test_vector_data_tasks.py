@@ -44,7 +44,7 @@ def test_vector_classification():
     model = Sequential.from_config(config)
 
 
-@pytest.mark.skipif(K.backend() == 'mxnet', reason='MXNet backend do not support Sparse')
+@pytest.mark.skipif(K.backend() == 'mxnet', reason='MXNet backend does not support Sparse yet.')
 @keras_test
 def test_vector_classification_functional():
     (x_train, y_train), (x_test, y_test) = get_test_data(num_train=500,

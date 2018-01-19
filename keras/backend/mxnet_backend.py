@@ -2590,21 +2590,22 @@ def in_train_phase(x, alt, training=None):
         training = learning_phase()
         uses_learning_phase = True
 
-    if training is 1 or training is True:
-        if callable(x):
-            res = x()
+    if training:
+        if isinstance(training, KerasSymbol):
+            # assume learning phase is a placeholder tensor.
+            res = switch(training, x, alt)
         else:
-            res = x
-        if isinstance(x, KerasSymbol):
-            uses_learning_phase = True
-    elif training is 0 or training is False:
+            if callable(x):
+                res = x()
+            else:
+                res = x
+            if isinstance(x, KerasSymbol):
+                uses_learning_phase = True
+    else:
         if callable(alt):
             res = alt()
         else:
             res = alt
-    else:
-        # assume learning phase is a placeholder tensor.
-        res = switch(training, x, alt)
 
     if uses_learning_phase:
         res._uses_learning_phase = True
