@@ -742,7 +742,7 @@ def test_model_with_input_feed_tensor():
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not models with partial loss yet')
+                    reason='MXNet backend do not support models with partial loss yet')
 @keras_test
 def test_model_with_partial_loss():
     a = Input(shape=(3,), name='input_a')

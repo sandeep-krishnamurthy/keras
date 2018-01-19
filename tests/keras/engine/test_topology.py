@@ -724,7 +724,7 @@ def test_layer_sharing_at_heterogeneous_depth():
 # https://github.com/deep-learning-tools/keras/issues/20
 @pytest.mark.skipif(K.backend() == 'mxnet',
                     reason='MXNet backend do not support predict without compile.'
-                           'To be fixed. ')
+                           'To be fixed.')
 @keras_test
 def test_layer_sharing_at_heterogeneous_depth_with_concat():
     input_shape = (16, 9, 3)
