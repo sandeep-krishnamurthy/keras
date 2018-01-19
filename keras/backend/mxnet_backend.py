@@ -4026,8 +4026,8 @@ def get_model():
                 sample_weight_mode, **kwargs)
 
             # set the data and label
-            self._data_names = [x.name for x in self.inputs]
-            self._label_names = [x.name for x in self.targets + self.sample_weights]
+            self._data_names = [x.name for x in self.inputs if x]
+            self._label_names = [x.name for x in self.targets + self.sample_weights if x]
 
             # set for training
             old = learning_phase()
@@ -4163,6 +4163,7 @@ def get_model():
 
         def _make_train_function(self):
             def train_function(inputs):
+                self._check_trainable_weights_consistency()
                 data, label, _, data_shapes, label_shapes = self._adjust_module(inputs, 'train')
 
                 batch = mx.io.DataBatch(data=data, label=label, bucket_key='train',
