@@ -1872,7 +1872,7 @@ def batch_normalization(x, mean, var, beta, gamma, epsilon=1e-3):
 
 
 @keras_mxnet_symbol
-def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, axis=-1, epsilon=1e-3):
+def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, momentum=0.9, axis=-1, epsilon=1e-3):
     """Apply native  MXNet batch normalization on x with given moving_mean,
     moving_var, beta and gamma.
 
@@ -1900,7 +1900,7 @@ def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, axis=-1, epsilon=1e
 
     return KerasSymbol(
         mx.sym.BatchNorm(x, gamma, beta, moving_mean,
-                         moving_var, axis=axis, eps=epsilon))
+                         moving_var, momentum=momentum, axis=axis, eps=epsilon))
 
 
 # SHAPE OPERATIONS
