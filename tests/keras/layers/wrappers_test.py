@@ -9,6 +9,8 @@ from keras import backend as K
 from keras.engine.topology import _object_list_uid, _to_list
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason="MXNet backend does not support TimeDistributed yet.")
 @keras_test
 def test_TimeDistributed():
     # first, test with Dense layer
@@ -125,6 +127,8 @@ def test_TimeDistributed():
 
 
 @keras_test
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason="MXNet backend does not support TimeDistributed yet.")
 @pytest.mark.skipif((K.backend() == 'cntk'),
                     reason='Flaky with CNTK backend')
 def test_TimeDistributed_learning_phase():
@@ -157,6 +161,8 @@ def test_regularizers():
     assert len(model.losses) == 1
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason="MXNet backend does not support RNN yet.")
 @keras_test
 def test_Bidirectional():
     rnn = layers.SimpleRNN
@@ -212,6 +218,8 @@ def test_Bidirectional():
         model.fit(x, y, epochs=1, batch_size=1)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason="MXNet backend does not support RNN yet.")
 @keras_test
 @pytest.mark.parametrize('merge_mode', ['sum', 'mul', 'ave', 'concat', None])
 def test_Bidirectional_merged_value(merge_mode):
@@ -271,6 +279,8 @@ def test_Bidirectional_merged_value(merge_mode):
 
 
 @keras_test
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason="MXNet backend does not support RNN yet.")
 @pytest.mark.skipif(K.backend() == 'theano', reason='Not supported.')
 @pytest.mark.parametrize('merge_mode', ['sum', 'concat', None])
 def test_Bidirectional_dropout(merge_mode):
@@ -301,6 +311,8 @@ def test_Bidirectional_dropout(merge_mode):
         assert_allclose(x1, x2, atol=1e-5)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason="MXNet backend does not support RNN yet.")
 @keras_test
 def test_Bidirectional_state_reuse():
     rnn = layers.LSTM
