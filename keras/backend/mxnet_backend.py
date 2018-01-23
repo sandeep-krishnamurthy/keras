@@ -2172,13 +2172,13 @@ def temporal_padding(x, padding=(1, 1)):
 
     # MXNet only supports padding for 4D and 5D tensor.
     # Reshaping to 4D, perform padding, reshape back to 3D.
-    x_shape = x.shape
-    x_4d = KerasSymbol(mx.sym.Reshape(x.symbol, shape=(x_shape[0], 1, x_shape[1], x_shape[2])))
-    x_4d_padded = KerasSymbol(mx.sym.pad(data=x_4d, mode='constant', constant_value=0,
-                                         pad_width=(0, 0, 0, 0, padding[0], padding[1], 0, 0,)))
-    x_3d_padded = KerasSymbol(mx.sym.Reshape(x_4d_padded, shape=(x_shape[0], x_shape[1] + padding[0]
-                                                                 + padding[1], x_shape[2])))
-    return x_3d_padded
+    x_shape = tuple([0 if dim is None else dim for dim in x.shape])
+    x_4d = mx.sym.Reshape(x.symbol, shape=(x_shape[0], 1, x_shape[1], x_shape[2]))
+    x_4d_padded = mx.sym.pad(data=x_4d, mode='constant', constant_value=0, pad_width=(0, 0, 0, 0, padding[0],
+                                                                                      padding[1], 0, 0,))
+    x_3d_padded = mx.sym.Reshape(x_4d_padded, shape=(x_shape[0], x_shape[1] + padding[0] + padding[1],
+                                                     x_shape[2]))
+    return KerasSymbol(x_3d_padded)
 
 
 @keras_mxnet_symbol
@@ -2199,21 +2199,21 @@ def spatial_2d_padding(x, padding=((1, 1), (1, 1)), data_format=None):
     assert len(padding) == 2
     assert len(padding[0]) == 2
     assert len(padding[1]) == 2
-
     assert ndim(x) == 4
 
     if data_format is None:
         data_format = image_data_format()
 
-    if data_format not in {'channels_first'}:
-        raise ValueError("MXNet Backend: MXNet supports only 'channels_first' data format. "
-                         "Unknown data_format - {0} provided for padding".format(str(data_format)))
+    # Pre process input for handling data_format - channels_first/channels_last.
+    # MXNet requires input to be in channels_first.
+    x = _preprocess_convnd_input(x, data_format)
 
     pattern = (0, 0, 0, 0, padding[0][0], padding[0][1], padding[1][0], padding[1][1])
+    x = KerasSymbol(mx.sym.Pad(data=x.symbol, mode='constant', constant_value=0, pad_width=pattern))
 
-    return KerasSymbol(mx.sym.Pad(data=x.symbol, mode='constant',
-                                  constant_value=0,
-                                  pad_width=pattern))
+    # Convert back to original data_format
+    x = _postprocess_convnd_output(x, data_format)
+    return x
 
 
 @keras_mxnet_symbol
@@ -2250,9 +2250,9 @@ def spatial_3d_padding(x, padding=((1, 1), (1, 1), (1, 1)), data_format=None):
     if data_format is None:
         data_format = image_data_format()
 
-    if data_format not in {'channels_first'}:
-        raise ValueError("MXNet Backend: MXNet supports only 'channels_first' data format. "
-                         "Unknown data_format - {0} provided for padding".format(str(data_format)))
+    # Pre process input for handling data_format - channels_first/channels_last.
+    # MXNet requires input to be in channels_first.
+    x = _preprocess_convnd_input(x, data_format)
 
     pattern = (
         0, 0,
@@ -2261,9 +2261,10 @@ def spatial_3d_padding(x, padding=((1, 1), (1, 1), (1, 1)), data_format=None):
         padding[1][0], padding[1][1],
         padding[2][0], padding[2][1]
     )
-    return KerasSymbol(mx.sym.Pad(data=x.symbol, mode='constant',
-                                  constant_value=0,
-                                  pad_width=pattern))
+    x = KerasSymbol(mx.sym.Pad(data=x.symbol, mode='constant', constant_value=0, pad_width=pattern))
+    # Convert back to original data_format
+    x = _postprocess_convnd_output(x, data_format)
+    return x
 
 
 def stack(x, axis=0):
@@ -3068,15 +3069,18 @@ def pool2d(x, pool_size, strides=(1, 1),
     _validate_padding_mode(padding)
 
     if padding == "same":
-        # For MXNet "Same" => "full"
-        padding = "full"
+        raise NotImplementedError("MXNet Backend: pooling does not support 'same' mode yet. Supported modes - "
+                                  "'full, valid'")
 
     x = _preprocess_convnd_input(x, data_format)
+
     mx_out = mx.sym.Pooling(data=x.symbol,
                             kernel=pool_size,
                             pool_type=pool_mode,
                             pooling_convention=padding,
                             stride=strides)
+
+    # Handle original Data Format
     return _postprocess_convnd_output(KerasSymbol(mx_out), data_format)
 
 
@@ -3107,8 +3111,8 @@ def pool3d(x, pool_size, strides=(1, 1, 1), padding='valid',
     _validate_padding_mode(padding)
 
     if padding == "same":
-        # For MXNet "Same" => "full"
-        padding = "full"
+        raise NotImplementedError("MXNet Backend: pooling does not support 'same' mode yet. Supported modes - "
+                                  "'full, valid'")
 
     x = _preprocess_convnd_input(x, data_format)
     mx_out = mx.sym.Pooling(data=x.symbol,
@@ -3756,18 +3760,27 @@ def _convert_string_dtype(dtype):
     # Raises
         ValueError: if `dtype` is not supported.
     """
-    mapping = {'float16': np.float16,
-               'float32': np.float32,
-               'float64': np.float64,
-               'int8': np.int8,
-               'int32': np.int32,
-               'int64': np.int64,
-               'uint8': np.int8,
-               'uint16': np.uint16}
+    if isinstance(dtype, np.dtype):
+        # If user has passed the np.dtype, fetch and return the np type.
+        ret_type = dtype.type
+    elif isinstance(dtype, type):
+        # If user has passed the np type, just return it.
+        ret_type = dtype
+    else:
+        # If string name of the type, convert it to a type.
+        mapping = {'float16': np.float16,
+                   'float32': np.float32,
+                   'float64': np.float64,
+                   'int8': np.int8,
+                   'int32': np.int32,
+                   'int64': np.int64,
+                   'uint8': np.int8,
+                   'uint16': np.uint16}
 
-    if dtype not in mapping:
-        raise ValueError('MXNet Backend: Unsupported dtype:', dtype)
-    return mapping[dtype]
+        if dtype not in mapping:
+            raise ValueError('MXNet Backend: Unsupported dtype:', dtype)
+        ret_type = mapping[dtype]
+    return ret_type
 
 
 def _convert_dtype_string(dtype):
