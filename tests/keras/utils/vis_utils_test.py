@@ -13,7 +13,7 @@ from keras import backend as K
 
 
 @pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend do not LSTM yet')
+                    reason='MXNet backend does not support LSTM yet')
 def test_plot_model():
     model = Sequential()
     model.add(Conv2D(filters=2, kernel_size=(2, 3), input_shape=(3, 5, 5), name='conv'))

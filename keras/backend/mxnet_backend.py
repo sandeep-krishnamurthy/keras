@@ -2204,6 +2204,8 @@ def spatial_2d_padding(x, padding=((1, 1), (1, 1)), data_format=None):
     if data_format is None:
         data_format = image_data_format()
 
+    _validate_data_format(data_format)
+
     # Pre process input for handling data_format - channels_first/channels_last.
     # MXNet requires input to be in channels_first.
     x = _preprocess_convnd_input(x, data_format)
@@ -2250,6 +2252,8 @@ def spatial_3d_padding(x, padding=((1, 1), (1, 1), (1, 1)), data_format=None):
     if data_format is None:
         data_format = image_data_format()
 
+    _validate_data_format(data_format)
+    
     # Pre process input for handling data_format - channels_first/channels_last.
     # MXNet requires input to be in channels_first.
     x = _preprocess_convnd_input(x, data_format)
@@ -3771,6 +3775,7 @@ def _convert_string_dtype(dtype):
         mapping = {'float16': np.float16,
                    'float32': np.float32,
                    'float64': np.float64,
+                   'int16': np.int16,
                    'int8': np.int8,
                    'int32': np.int32,
                    'int64': np.int64,
@@ -3802,6 +3807,7 @@ def _convert_dtype_string(dtype):
                np.int32: 'int32',
                np.int64: 'int64',
                np.int8: 'uint8',
+               np.uint8: 'uint8',
                np.uint16: 'uint16'}
 
     if dtype not in mapping:
@@ -3990,6 +3996,9 @@ def get_model():
     engine = importlib.import_module('keras.engine.training')
 
     class Model(engine.Model):
+        """The `Model` class adds training & evaluation routines to a `Container`. This class extends
+        keras.engine.Model to add MXNet Module to perform training and inference with MXNet backend.
+        """
         def __init__(self, inputs, outputs, name=None, context=None, kvstore='device', **kwargs):
             super(Model, self).__init__(inputs, outputs, name)
             self._num_data = len(self.inputs)

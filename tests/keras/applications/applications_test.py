@@ -250,6 +250,8 @@ def test_inceptionv3_notop():
     assert model.output_shape == (None, None, None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend does not support pooling with SAME mode.')
 @keras_test
 def test_inceptionv3_notop_specified_input_shape():
     input_shape = (3, 300, 300) if K.image_data_format() == 'channels_first' else (300, 300, 3)
@@ -266,6 +268,8 @@ def test_inceptionv3_pooling():
     assert model.output_shape == (None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend does not support pooling with SAME mode.')
 @keras_test
 def test_inceptionv3_pooling_specified_input_shape():
     input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
@@ -321,7 +325,8 @@ def test_inceptionresnetv2_pooling():
     assert output_shape == (None, 1536)
 
 
-
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionresnetv2_variable_input_channels():
     def model_fn(input_shape):
