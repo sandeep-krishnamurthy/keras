@@ -36,12 +36,27 @@ def test_resnet50():
     assert model.output_shape == (None, 1000)
 
 
+# MXNet backend does not support auto infer input shape for convolution operator.
+# https://github.com/apache/incubator-mxnet/issues/9458
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_resnet50_notop():
     model = applications.ResNet50(weights=None, include_top=False)
     assert model.output_shape == (None, None, None, 2048)
 
 
+@keras_test
+def test_resnet50_notop_specified_input_shape():
+    input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
+    model = applications.ResNet50(weights=None, include_top=False, input_shape=input_shape)
+
+    output_shape = (None, 2048, 1, 1) if K.image_data_format() == 'channels_first' else (None, 1, 1, 2048)
+    assert model.output_shape == output_shape
+
+
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_resnet50_variable_input_channels():
     input_shape = (1, None, None) if K.image_data_format() == 'channels_first' else (None, None, 1)
@@ -53,6 +68,8 @@ def test_resnet50_variable_input_channels():
     assert model.output_shape == (None, None, None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_resnet50_pooling():
     model = applications.ResNet50(weights=None,
@@ -62,17 +79,41 @@ def test_resnet50_pooling():
 
 
 @keras_test
+def test_resnet50_pooling_specified_input_shape():
+    input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
+    model = applications.ResNet50(weights=None, include_top=False, pooling='avg',
+                                  input_shape=input_shape)
+
+    output_shape = (None, 2048)
+    assert model.output_shape == output_shape
+
+
+@keras_test
 def test_vgg16():
     model = applications.VGG16(weights=None)
     assert model.output_shape == (None, 1000)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_vgg16_notop():
     model = applications.VGG16(weights=None, include_top=False)
     assert model.output_shape == (None, None, None, 512)
+    assert False
 
 
+@keras_test
+def test_vgg16_notop_specified_input_shape():
+    input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
+    model = applications.VGG16(weights=None, include_top=False, input_shape=input_shape)
+
+    output_shape = (None, 512, 6, 6) if K.image_data_format() == 'channels_first' else (None, 6, 6, 512)
+    assert model.output_shape == output_shape
+
+
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_vgg16_variable_input_channels():
     input_shape = (1, None, None) if K.image_data_format() == 'channels_first' else (None, None, 1)
@@ -84,10 +125,22 @@ def test_vgg16_variable_input_channels():
     assert model.output_shape == (None, None, None, 512)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_vgg16_pooling():
     model = applications.VGG16(weights=None, include_top=False, pooling='avg')
     assert model.output_shape == (None, 512)
+
+
+@keras_test
+def test_vgg16_pooling_specified_input_shape():
+    input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
+    model = applications.VGG16(weights=None, include_top=False, pooling='avg',
+                               input_shape=input_shape)
+
+    output_shape = (None, 512)
+    assert model.output_shape == output_shape
 
 
 @keras_test
@@ -96,12 +149,17 @@ def test_vgg19():
     assert model.output_shape == (None, 1000)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_vgg19_notop():
     model = applications.VGG19(weights=None, include_top=False)
     assert model.output_shape == (None, None, None, 512)
+    assert False
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_vgg19_variable_input_channels():
     input_shape = (1, None, None) if K.image_data_format() == 'channels_first' else (None, None, 1)
@@ -121,10 +179,22 @@ def test_vgg19_notop_specified_input_shape():
     assert model.output_shape == output_shape
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_vgg19_pooling():
     model = applications.VGG16(weights=None, include_top=False, pooling='avg')
     assert model.output_shape == (None, 512)
+
+
+@keras_test
+def test_vgg19_pooling_specified_input_shape():
+    input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
+    model = applications.VGG19(weights=None, include_top=False, pooling='avg',
+                               input_shape=input_shape)
+
+    output_shape = (None, 512)
+    assert model.output_shape == output_shape
 
 
 @keras_test
@@ -164,27 +234,54 @@ def test_xception_variable_input_channels():
     assert model.output_shape == (None, None, None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionv3():
     model = applications.InceptionV3(weights=None)
     assert model.output_shape == (None, 1000)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionv3_notop():
     model = applications.InceptionV3(weights=None, include_top=False)
     assert model.output_shape == (None, None, None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend does not support pooling with SAME mode.')
+@keras_test
+def test_inceptionv3_notop_specified_input_shape():
+    input_shape = (3, 300, 300) if K.image_data_format() == 'channels_first' else (300, 300, 3)
+    model = applications.InceptionV3(weights=None, include_top=False, input_shape=input_shape)
+    output_shape = (None, 2048, 8, 8) if K.image_data_format() == 'channels_first' else (None, 8, 8, 2048)
+    assert model.output_shape == output_shape
+
+
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionv3_pooling():
     model = applications.InceptionV3(weights=None, include_top=False, pooling='avg')
     assert model.output_shape == (None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend does not support pooling with SAME mode.')
 @keras_test
-@pytest.mark.skipif((K.backend() == 'cntk'),
-                    reason='cntk does not support padding with non-concrete dimension')
+def test_inceptionv3_pooling_specified_input_shape():
+    input_shape = (3, 200, 200) if K.image_data_format() == 'channels_first' else (200, 200, 3)
+    model = applications.InceptionV3(weights=None, include_top=False, pooling='avg',
+                                     input_shape=input_shape)
+    output_shape = (None, 2048)
+    assert model.output_shape == output_shape
+
+
+@keras_test
+@pytest.mark.skipif((K.backend() == 'cntk' or K.backend() == 'mxnet'),
+                    reason='cntk/mxnet does not support padding with non-concrete dimension')
 def test_inceptionv3_variable_input_channels():
     input_shape = (1, None, None) if K.image_data_format() == 'channels_first' else (None, None, 1)
     model = applications.InceptionV3(weights=None, include_top=False, input_shape=input_shape)
@@ -195,6 +292,8 @@ def test_inceptionv3_variable_input_channels():
     assert model.output_shape == (None, None, None, 2048)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionresnetv2():
     def model_fn():
@@ -203,6 +302,8 @@ def test_inceptionresnetv2():
     assert output_shape == (None, 1000)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionresnetv2_notop():
     def model_fn():
@@ -214,6 +315,8 @@ def test_inceptionresnetv2_notop():
         assert output_shape == (None, None, None, 1536)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionresnetv2_pooling():
     def model_fn():
@@ -222,6 +325,8 @@ def test_inceptionresnetv2_pooling():
     assert output_shape == (None, 1536)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 def test_inceptionresnetv2_variable_input_channels():
     def model_fn(input_shape):
@@ -285,6 +390,8 @@ def test_mobilenet_image_size():
         model = applications.MobileNet(input_shape=invalid_image_shape, weights='imagenet', include_top=True)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 @pytest.mark.parametrize('fun', [
     applications.DenseNet121,
@@ -298,6 +405,8 @@ def test_densenet(fun):
     assert output_shape == (None, 1000)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 @pytest.mark.parametrize('fun,dim', [
     (applications.DenseNet121, 1024),
@@ -311,6 +420,8 @@ def test_densenet_no_top(fun, dim):
     assert output_shape == (None, None, None, dim)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 @pytest.mark.parametrize('fun,dim', [
     (applications.DenseNet121, 1024),
@@ -324,6 +435,8 @@ def test_densenet_pooling(fun, dim):
     assert output_shape == (None, None, None, dim)
 
 
+@pytest.mark.skipif((K.backend() == 'mxnet'),
+                    reason='MXNet backend requires input shape for convolution')
 @keras_test
 @pytest.mark.parametrize('fun,dim', [
     (applications.DenseNet121, 1024),
