@@ -3907,7 +3907,7 @@ def _postprocess_convnd_output(x, data_format):
 def _preprocess_convnd_kernel(kernel, data_format):
     # Kernel is always provided in TF kernel shape: (rows, cols, input_depth, depth)
     # Convert it to MXNet kernel shape: (depth, input_depth, rows, cols)
-    if len(kernel.shape) > 3:
+    if data_format == 'channels_last' and len(kernel.shape) > 3:
         kernel = KerasSymbol(mx.sym.transpose(data=kernel.symbol, axes=(3, 2, 0, 1)))
 
     return kernel
@@ -3961,6 +3961,10 @@ def _convnd(x, kernel, strides, filter_dilation, name=None, padding_mode='valid'
             data_format='default'):
     if data_format is None or data_format == 'default':
         data_format = image_data_format()
+
+    if data_format == 'channels_last':
+        warnings.warn("MXNet Backend performs best with 'channels_first' format. Using 'channels_last' will "
+                      "significantly reduce performance due to the Transpose operations.", stacklevel=2)
 
     # Handle Data Format
     x = _preprocess_convnd_input(x, data_format)
