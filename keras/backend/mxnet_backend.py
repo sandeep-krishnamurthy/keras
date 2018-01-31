@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
+import warnings
 import mxnet as mx
 import numpy as np
 from numbers import Number
@@ -1872,7 +1873,7 @@ def batch_normalization(x, mean, var, beta, gamma, epsilon=1e-3):
 
 
 @keras_mxnet_symbol
-def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, momentum=0.9, axis=-1, epsilon=1e-3):
+def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, momentum=0.9, axis=1, epsilon=1e-3):
     """Apply native  MXNet batch normalization on x with given moving_mean,
     moving_var, beta and gamma.
 
@@ -1882,6 +1883,9 @@ def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, momentum=0.9, axis=
         beta: Tensor by which to center the input.
         moving_mean: Moving mean.
         moving_var: Moving variance.
+        momentum: Moving average momentum. Defaults to 0.9
+        axis: Axis along which Batchnorm is applied. Axis usually represent axis of 'channels'. MXNet follows
+        'channels_first' hence, defaults to '1'.
         epsilon: Fuzz factor to avoid divide by zero.
 
     # Returns
@@ -1897,6 +1901,10 @@ def mxnet_batchnorm(x, gamma, beta, moving_mean, moving_var, momentum=0.9, axis=
         beta = beta.symbol
     if isinstance(gamma, KerasSymbol):
         gamma = gamma.symbol
+
+    if axis != 1:
+        warnings.warn("MXNet Backend uses 'channels_first' format. Axis for BatchNorm should ideally be '1'."
+                      "Provided - '" + axis + "'. Performance can be significantly lower!", stacklevel=2)
 
     return KerasSymbol(
         mx.sym.BatchNorm(x, gamma, beta, moving_mean,
