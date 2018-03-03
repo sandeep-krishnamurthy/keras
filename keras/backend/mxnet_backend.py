@@ -2946,7 +2946,7 @@ def conv1d(x, kernel, strides=1, padding='valid',
     strides = (strides, 1)
     # add dim to kernel (always same format independently of data_format)
     # i.e. (rows, 1, input_depth, depth)
-    kernel = expand_dims(kernel, 1)
+    kernel = expand_dims(kernel, axis=1)
 
     output = _convnd(x, kernel, name='conv1d', strides=strides, filter_dilation=dilation_rate,
                    padding_mode=padding, data_format=data_format)
@@ -2954,9 +2954,9 @@ def conv1d(x, kernel, strides=1, padding='valid',
     # Remove added extra dimension
     # remove added dim
     if data_format == 'channels_last':
-        output = squeeze(output, 2)
+        output = squeeze(output, axis=2)
     else:
-        output = squeeze(output, 3)
+        output = squeeze(output, axis=3)
     return output
 
 
