@@ -99,7 +99,7 @@ def multi_gpu_model(model, gpus=None):
     rather than the model returned by `multi_gpu_model`.
     """
 
-    if K.backend() != 'tensorflow' and K.backend() != 'mxnet'):
+    if K.backend() != 'tensorflow' and K.backend() != 'mxnet':
         raise ValueError('`multi_gpu_model` is only available '
                          'with the TensorFlow and MXNet backend.')
 
