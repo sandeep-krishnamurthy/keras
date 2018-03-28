@@ -4718,6 +4718,20 @@ def get_optimizers():
             base_config = super(Adam, self).get_config()
             return dict(list(base_config.items()) + list(config.items()))
 
+    class Adamax(MXOptimizer, mx.optimizer.Adamax):
+        def __init__(self, learning_rate=0.002, beta1=0.9, beta2=0.999, decay=0., **kwargs):
+            mx.optimizer.Adamax.__init__(self, learning_rate=learning_rate, beta1=beta1, beta2=beta2,
+                                         **kwargs)
+            MXOptimizer.__init__(self, learning_rate, decay)
+
+        def get_config(self):
+            config = {'lr': float(get_value(self.learning_rate)),
+                      'beta_1': float(get_value(self.beta1)),
+                      'beta_2': float(get_value(self.beta2)),
+                      'decay': float(get_value(self.decay))}
+            base_config = super(Adamax, self).get_config()
+            return dict(list(base_config.items()) + list(config.items()))
+
     class RMSprop(MXOptimizer, mx.optimizer.RMSProp):
         def __init__(self, lr=0.001, rho=0.9, epsilon=1e-8, decay=0., clipnorm=None, **kwargs):
             mx.optimizer.RMSProp.__init__(self, learning_rate=lr, gamma1=rho, epsilon=epsilon,
@@ -4732,4 +4746,4 @@ def get_optimizers():
             base_config = super(RMSprop, self).get_config()
             return dict(list(base_config.items()) + list(config.items()))
 
-    return SGD, Adagrad, Adadelta, Adam, RMSprop
+    return SGD, Adagrad, Adadelta, Adam, Adamax, RMSprop
