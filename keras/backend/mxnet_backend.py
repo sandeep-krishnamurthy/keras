@@ -4719,16 +4719,19 @@ def get_optimizers():
             return dict(list(base_config.items()) + list(config.items()))
 
     class Adamax(MXOptimizer, mx.optimizer.Adamax):
-        def __init__(self, learning_rate=0.002, beta1=0.9, beta2=0.999, decay=0., **kwargs):
-            mx.optimizer.Adamax.__init__(self, learning_rate=learning_rate, beta1=beta1, beta2=beta2,
-                                         **kwargs)
-            MXOptimizer.__init__(self, learning_rate, decay)
+        def __init__(self, lr=0.002, beta_1=0.9, beta_2=0.999, decay=0., clipnorm=None,
+                     epsilon=1e-8, **kwargs):
+            mx.optimizer.Adamax.__init__(self, learning_rate=lr, beta1=beta_1, beta2=beta_2,
+                                         clip_gradient=clipnorm, **kwargs)
+            MXOptimizer.__init__(self, lr, decay)
+            self.epsilon = epsilon
 
         def get_config(self):
             config = {'lr': float(get_value(self.learning_rate)),
                       'beta_1': float(get_value(self.beta1)),
                       'beta_2': float(get_value(self.beta2)),
-                      'decay': float(get_value(self.decay))}
+                      'decay': float(get_value(self.decay)),
+                      'epsilon': self.epsilon}
             base_config = super(Adamax, self).get_config()
             return dict(list(base_config.items()) + list(config.items()))
 
