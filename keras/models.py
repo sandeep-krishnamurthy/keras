@@ -71,9 +71,17 @@ def save_mxnet_model(model, prefix, epoch=0):
         data_names, data_shapes
     """
     assert model is not None, 'MXNet Backend: Invalid state. Model cannot be None.'
-    assert model.model is not None, 'MXNet Backend: Invalid state. MXNet Model cannot be None.'
 
-    mxnet_model = model.model
+    # Handle Sequential Model / Functional API Model Case
+    if isinstance(model, Sequential):
+        mxnet_model = model.model
+    elif isinstance(model, Model):
+        mxnet_model = model
+    else:
+        raise ValueError('MXNet Backend: Invalid model type. Supported Models - Sequential, Model.')
+
+    assert mxnet_model is not None, 'MXNet Backend: Invalid state. MXNet Model cannot be None.'
+
     if not mxnet_model.compiled:
         raise ValueError('MXNet Backend: Model is not compiled. Cannot save the MXNet model!')
 
