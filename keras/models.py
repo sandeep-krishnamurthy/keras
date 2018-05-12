@@ -90,10 +90,14 @@ def save_mxnet_model(model, prefix, epoch=0):
     data_names = pred_module.data_names
     data_shapes = pred_module.data_shapes
 
-    symbol.save('%s-symbol.json' % prefix)
-    module.save_params('%s-%04d.params' % (prefix, epoch))
+    symbol_fname = '%s-symbol.json' % prefix
+    params_fname = '%s-%04d.params' % (prefix, epoch)
+    symbol.save(symbol_fname)
+    module.save_params(params_fname)
 
     print('MXNet Backend: Successfully exported the model as MXNet model!')
+    print('MXNet symbol file - ', symbol_fname)
+    print('MXNet params file - ', params_fname)
     print('\n\nModel input data_names and data_shapes are: ')
     print('data_names : ', data_names)
     print('data_shapes : ', data_shapes)

@@ -8,7 +8,7 @@ from numpy.testing import assert_raises
 
 from keras import backend as K
 from keras.models import Model, Sequential
-from keras.layers import Dense, Lambda, RepeatVector, TimeDistributed, LSTM
+from keras.layers import Dense, Lambda, RepeatVector, TimeDistributed, LSTM, Embedding
 from keras.layers import Conv2D, Flatten
 from keras.layers import Input
 from keras import optimizers
@@ -618,6 +618,44 @@ def test_saving_recurrent_layer_without_bias():
 @pytest.mark.skipif((K.backend() != 'mxnet'),
                     reason='Supported for MXNet backend only.')
 @keras_test
+def test_sequential_lstm_mxnet_model_saving():
+    max_features = 1000
+    maxlen = 80
+    batch_size = 32
+
+    model = Sequential()
+    model.add(Embedding(max_features, 128, input_length=maxlen))
+    model.add(LSTM(128, unroll=True))
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+
+    # Generate random data
+    x = np.random.random((1000, maxlen))
+    y = np.random.random((1000, 128))
+    print("X shape - ", x.shape)
+    print("Y shape - ", y.shape)
+    model.fit(x, y, batch_size=batch_size, epochs=2)
+
+    save_mxnet_model(model, prefix='test_lstm', epoch=0)
+
+    # Import with MXNet and try to perform inference
+    import mxnet as mx
+    sym, arg_params, aux_params = mx.model.load_checkpoint(prefix='test_lstm', epoch=0)
+    mod = mx.mod.Module(symbol=sym, data_names=['/embedding_1_input1'], context=mx.cpu(), label_names=None)
+    mod.bind(for_training=False, data_shapes=[('/embedding_1_input1', (1, 80))], label_shapes=mod._label_shapes)
+    mod.set_params(arg_params, aux_params, allow_missing=True)
+    data_iter = mx.io.NDArrayIter([mx.nd.random.normal(shape=(1, 80))], label=None, batch_size=1)
+    mod.predict(data_iter)
+
+    os.remove('test_lstm-symbol.json')
+    os.remove('test_lstm-0000.params')
+
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
 def test_sequential_mxnet_model_saving():
     model = Sequential()
     model.add(Dense(2, input_shape=(3,)))
@@ -637,12 +675,11 @@ def test_sequential_mxnet_model_saving():
     import mxnet as mx
     sym, arg_params, aux_params = mx.model.load_checkpoint(prefix='test', epoch=0)
     mod = mx.mod.Module(symbol=sym, data_names=['/dense_1_input1'], context=mx.cpu(), label_names=None)
-    mod.bind(for_training=False, data_shapes=[('/dense_1_input1', (1,3))], label_shapes=mod._label_shapes)
+    mod.bind(for_training=False, data_shapes=[('/dense_1_input1', (1, 3))], label_shapes=mod._label_shapes)
     mod.set_params(arg_params, aux_params, allow_missing=True)
     data_iter = mx.io.NDArrayIter([mx.nd.random.normal(shape=(1, 3))], label=None, batch_size=1)
-    result = mod.predict(data_iter)
+    mod.predict(data_iter)
 
-    print('RESULT - ', result)
     os.remove('test-symbol.json')
     os.remove('test-0000.params')
 
