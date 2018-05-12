@@ -15,7 +15,7 @@ from keras import optimizers
 from keras import losses
 from keras import metrics
 from keras.utils.test_utils import keras_test
-from keras.models import save_model, load_model
+from keras.models import save_model, load_model, save_mxnet_model
 
 
 @keras_test
@@ -491,8 +491,6 @@ def test_saving_custom_activation_function():
     assert_allclose(out, out2, atol=1e-05)
 
 
-@pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend does not support LSTM yet.')
 @keras_test
 def test_saving_model_with_long_layer_names():
     # This layer name will make the `layers_name` HDF5 attribute blow
@@ -601,8 +599,6 @@ def test_saving_recurrent_layer_with_init_state():
     os.remove(fname)
 
 
-@pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend does not support LSTM yet.')
 @keras_test
 def test_saving_recurrent_layer_without_bias():
     vector_size = 8
@@ -617,6 +613,50 @@ def test_saving_recurrent_layer_without_bias():
 
     loaded_model = load_model(fname)
     os.remove(fname)
+
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_sequential_mxnet_model_saving():
+    model = Sequential()
+    model.add(Dense(2, input_shape=(3,)))
+    model.add(RepeatVector(3))
+    model.add(TimeDistributed(Dense(3)))
+    model.compile(loss=losses.MSE,
+                  optimizer=optimizers.RMSprop(lr=0.0001),
+                  metrics=[metrics.categorical_accuracy],
+                  sample_weight_mode='temporal')
+    x = np.random.random((1, 3))
+    y = np.random.random((1, 3, 3))
+    model.train_on_batch(x, y)
+
+    save_mxnet_model(model, prefix='test', epoch=0)
+
+    # Import with MXNet and try to perform inference
+    import mxnet as mx
+    sym, arg_params, aux_params = mx.model.load_checkpoint(prefix='test', epoch=0)
+    mod = mx.mod.Module(symbol=sym, data_names=['/dense_1_input1'], context=mx.cpu(), label_names=None)
+    mod.bind(for_training=False, data_shapes=[('/dense_1_input1', (1,3))], label_shapes=mod._label_shapes)
+    mod.set_params(arg_params, aux_params, allow_missing=True)
+    data_iter = mx.io.NDArrayIter([mx.nd.random.normal(shape=(1, 3))], label=None, batch_size=1)
+    result = mod.predict(data_iter)
+
+    print('RESULT - ', result)
+    os.remove('test-symbol.json')
+    os.remove('test-0000.params')
+
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_sequential_mxnet_model_saving_no_compile():
+    model = Sequential()
+    model.add(Dense(2, input_shape=(3,)))
+    model.add(RepeatVector(3))
+    model.add(TimeDistributed(Dense(3)))
+    with pytest.raises(AssertionError):
+        save_mxnet_model(model, prefix='test', epoch=0)
 
 
 if __name__ == '__main__':

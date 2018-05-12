@@ -70,19 +70,19 @@ def save_mxnet_model(model, prefix, epoch=0):
     # Returns
         data_names, data_shapes
     """
-    assert model is not None, "MXNet Backend: Invalid state. Model cannot be None."
-    assert model.model is not None, "MXNet Backend: Invalid state. MXNet Model cannot be None."
+    assert model is not None, 'MXNet Backend: Invalid state. Model cannot be None.'
+    assert model.model is not None, 'MXNet Backend: Invalid state. MXNet Model cannot be None.'
 
     mxnet_model = model.model
     if not mxnet_model.compiled:
-        raise ValueError("MXNet Backend: Model is not compiled. Cannot save the MXNet model!")
+        raise ValueError('MXNet Backend: Model is not compiled. Cannot save the MXNet model!')
 
     # Saving MXNet model for Inference in native MXNet engine.
     symbol = mxnet_model._pred_mxnet_symbol
     module = mxnet_model._module
 
-    assert symbol is not None, "MXNet Backend: Invalid state. MXNet Symbol cannot be None."
-    assert module is not None, "MXNet Backend: Invalid state. MXNet Module cannot be None."
+    assert symbol is not None, 'MXNet Backend: Invalid state. MXNet Symbol cannot be None.'
+    assert module is not None, 'MXNet Backend: Invalid state. MXNet Module cannot be None.'
 
     # Get Module Input data_names and data_shapes.
     # This info will be useful for users to easily bind the exported model in MXNet.
@@ -90,18 +90,19 @@ def save_mxnet_model(model, prefix, epoch=0):
     data_names = pred_module.data_names
     data_shapes = pred_module.data_shapes
 
-    symbol.save('%s-symbol.json' % format(prefix))
-    module.save_params('%s-%04d.params' % format(prefix, epoch))
+    symbol.save('%s-symbol.json' % prefix)
+    module.save_params('%s-%04d.params' % (prefix, epoch))
 
-    print("MXNet Backend: Successfully exported the model as MXNet model!\n\n")
-    print("Model input data_names and data_shapes are: ")
-    print("data_names : ", data_names)
-    print("data_shapes : ", data_shapes)
-    print("\n\nNote: In the above data_shapes, the first dimension represent "
-          "the batch_size used for model training. ")
-    print("You can change the batch_size for binding the module based on your inference batch_size.")
+    print('MXNet Backend: Successfully exported the model as MXNet model!')
+    print('\n\nModel input data_names and data_shapes are: ')
+    print('data_names : ', data_names)
+    print('data_shapes : ', data_shapes)
+    print('\n\nNote: In the above data_shapes, the first dimension represent '
+          'the batch_size used for model training. ')
+    print('You can change the batch_size for binding the module based on your inference batch_size.')
 
     return data_names, data_shapes
+
 
 def save_model(model, filepath, overwrite=True, include_optimizer=True):
     """Save a model to a HDF5 file.
