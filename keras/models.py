@@ -66,6 +66,9 @@ def save_mxnet_model(model, prefix, epoch=0):
                 Model will be saved as '<prefix>-symbol.json' and '<prefix>-<epoch>.params'.
         epoch: (Optional) Tag the params file with epoch of the model being saved. Default is 0.
                Model params file is saved as '<prefix>-<epoch>.params' or '<prefix>-0000.params' by default.
+
+    # Returns
+        data_names, data_shapes
     """
     assert model is not None, "MXNet Backend: Invalid state. Model cannot be None."
     assert model.model is not None, "MXNet Backend: Invalid state. MXNet Model cannot be None."
@@ -98,6 +101,7 @@ def save_mxnet_model(model, prefix, epoch=0):
           "the batch_size used for model training. ")
     print("You can change the batch_size for binding the module based on your inference batch_size.")
 
+    return data_names, data_shapes
 
 def save_model(model, filepath, overwrite=True, include_optimizer=True):
     """Save a model to a HDF5 file.
