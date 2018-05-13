@@ -5,14 +5,15 @@
 1. [Install Keras with Apache MXNet backend](#1-install-keras-with-apache-mxnet-backend)
     1. [CPU Setup](#11-cpu-setup)
     2. [GPU Setup](#12-gpu-setup)
-2. [Configure Keras backend](#2-configure-keras-backend)
+2. [Configure Keras backend and data_format](#2-configure-keras-backend-and-data_format)
 3. [Validate the Installation](#3-validate-the-installation)
 4. [Train a simple handwritten digit recognition model](#4-train-a-simple-handwritten-digit-recognition-model)
 5. [Next Steps](#5-next-steps) 
 
 # 1 Install Keras with Apache MXNet backend
 
-`Warning` Keras with MXNet backend is still in experimental Beta phase. You can view the detailed list of known issues and unsupported functionalities [here](https://github.com/awslabs/keras-apache-mxnet/issues/18).
+`Warning` Not all Keras operators and functionalities are supported with MXNet backend. You can view the list
+ of known issues and unsupported functionalities [here](https://github.com/awslabs/keras-apache-mxnet/issues/18).
 
 Steps involved
 1. Install optional Keras dependencies
@@ -48,13 +49,15 @@ The following installation instructions are tested on Ubuntu 14.04/16.04 and Mac
 ```bash
     $ pip install mxnet --user
 ```
+If you would like to use MXNet with MKL for high performance on CPU, install `mxnet-mkl` with below command.
+```bash
+    $ pip install mxnet-mkl --user
+```
 
 ### Install Keras with MXNet backend
 
-TODO: `UPDATE - Add keras-mxnet pip after the release`
-
 ```bash
-    $ pip install keras-mxnet --pre --user
+    $ pip install keras-mxnet --user
 ```
 
 ## 1.2 GPU Setup
@@ -90,7 +93,7 @@ NOTE
 
 Make sure to add CUDA install path to `LD_LIBRARY_PATH`.
 ```
-For Example on Ubuntu machine, if you have downloaded CUDA debian package (`cuda-repo-ubuntu1604-9-1-local_9.1.85-1_amd64.deb`) and cuDNN 7.1 library (`cudnn-9.1-linux-x64-v7.1.tgz`), below are set of commands you run to setup CUDA and cuDNN.
+For example, on Ubuntu machine, if you have downloaded CUDA debian package (`cuda-repo-ubuntu1604-9-1-local_9.1.85-1_amd64.deb`) and cuDNN 7.1 library (`cudnn-9.1-linux-x64-v7.1.tgz`), below are set of commands you run to setup CUDA and cuDNN.
 
 ```bash
 
@@ -135,30 +138,25 @@ $  nvidia-smi
 
 ### Install Keras with MXNet backend
 
-TODO: `update: change to keras-mxnet package after release`
 ```bash
-    $ pip install keras-mxnet --pre --user
+    $ pip install keras-mxnet --user
 ```
 
-# 2 Configure Keras backend
+# 2 Configure Keras backend and data_format
 
-You should set Keras backend to 'mxnet' to run your Keras code with MXNet backend. You can either set the environment variable or edit the keras config file.
+When you install the `keras-mxnet`, by default, the following values are set.
 
-`Option 1` Set the environment variable
-
-```bash
-    $ export KERAS_BACKEND=mxnet
+```json
+backend: mxnet
+data_format: channels_last
 ```
 
-`Option 2` Edit the keras config file
-
-Open "*~/.keras/keras.json*" file and set "*backend=mxnet*".
+We strongly recommend changing the data_format to `channels_first`. MXNet is significantly faster on 'channels_first' data. Default is set to 'channels_last' with an objective to be compatible with majority of existing users of Keras. See [performance tips guide](performance_guide.md) for more details.
 
 ```
 NOTE
 
 If you cannot find ~/.keras/keras.json file, just load the Keras library once to get the config state created. 
-Use the below command. The keras.json file will be set to use mxnet as backend and 'channels_last' as image_data_format.
 
     $ python
     >>> import keras as k
@@ -179,14 +177,14 @@ Next, get hands-on by training a simple Multi Layer Perceptron (MLP) model for h
 
 In this section, to verify the installation, let us get more hands on training a simple Multi Layer Perceptron (MLP) model for handwritten digit recognition using MNIST dataset.
 
-awslabs/keras-apache-mxnet repository already consists of code to train the model. For simplicity, we only submit the model training job as a black box to see the training in action and do not focus on teaching what the model does.
+[awslabs/keras-apache-mxnet/examples](https://github.com/awslabs/keras-apache-mxnet/tree/master/examples) already consists of code to train the model. For simplicity, we only submit the model training job as a black box to see the training in action and do not focus on teaching what the model does.
 
 ```bash
-    # Download the dmlc/keras code base.
+    # Clone the awslabs/keras-apache-mxnet repository.
     $ git clone --recursive https://github.com/awslabs/keras-apache-mxnet
 
     # Launch the model training job.
-    $ python keras/examples/mnist_mlp.py
+    $ python keras-apache-mxnet/examples/mnist_mlp.py
 ```
 Your output should look something like below.
 
@@ -233,5 +231,5 @@ Congratulations! You have successfully installed Apache MXNet, Keras with MXNet 
 
 * Read the Keras documentation at [Keras.io](https://keras.io/).
 * For more examples explore [keras/examples](https://github.com/awslabs/keras-apache-mxnet/tree/master/examples) directory.
-* Tutorial on how to use multiple GPUs with MXNet backend - [Multi-GPU Distributed Training with Keras and Apache MXNet](https://github.com/awslabs/keras-apache-mxnet/tree/master/mxnet_backend_docs/multi_gpu_training.md)
-* Tips on how to improve performance - [Performance Guide for MXNet Backend](https://github.com/awslabs/keras-apache-mxnet/tree/master/mxnet_backend_docs/performance_guide.md)
+* Tutorial on how to use multiple GPUs with MXNet backend - [Multi-GPU Distributed Training with Keras and Apache MXNet](multi_gpu_trainig.md)
+* Tips for high performance with Keras-MXNet - [Performance Guide for MXNet Backend](performance_guide.md)
