@@ -13,13 +13,13 @@
 
 In this tutorial, we will use [Keras](https://keras.io/), with [Apache MXNet](https://mxnet.incubator.apache.org/) backend, on a multi-GPU machine, to train a Convolutional Neural Network (CNN) model on [CIFAR10 small images dataset](https://www.cs.toronto.edu/~kriz/cifar.html).
 
-MXNet backend makes large scale multi-GPU model training in Keras significantly faster! See [benchmark results](https://github.com/awslabs/keras-apache-mxnet/tree/master/benchmark) for more details.
+MXNet backend makes large scale multi-GPU model training in Keras significantly faster! See [benchmark results](../../benchmark/README.md) for more details.
 
 # Objective
 
 The main objective of this tutorial is to show *how to use multiple GPUs for training the neural network using Keras with MXNet backend*.
 
-MXNet backend supports Keras's [multi_gpu_model](https://keras.io/utils/#multi_gpu_model) API for distributed multi-gpu model training. All you have to do is pass either list of GPU IDs or count of GPUs to be used for training.
+MXNet backend supports Keras's [multi_gpu_model](https://keras.io/utils/#multi_gpu_model) API for distributed multi-gpu model training. All you have to do is pass either a list of GPU IDs or the number of GPUs to be used for training.
 
 Example, for training with `4 GPUs`, we create a multi_gpu_model by passing `gpus=4`.
 
@@ -39,17 +39,22 @@ That's it! MXNet backend will use 4 GPUs for training your model!
 
 Below is the more detailed tutorial to train a Convolutional Neural Network (CNN) model on [CIFAR10 small images dataset](https://www.cs.toronto.edu/~kriz/cifar.html) using Keras with MXNet backend.
 
+```
+Note:
+    You cannot provides gpus=1. By default, on a GPU machine, MXNet backend uses the first GPU device.
+
+```
 # Prerequisites
 
 1. GPU machine with CUDA and cuDNN installed
 2. Keras
 3. MXNet with GPU support
 
-Follow the step by step installation instructions [here](https://github.com/awslabs/keras-apache-mxnet/tree/master/mxnet_backend_docs/installation.md) to set up your machine with Keras with MXNet backend.
+Follow the step by step installation instructions [here](installation.md#12-gpu-setup) to set up your machine with Keras with MXNet backend.
 
 # Prepare the Data
 
-CIFAR10 is a dataset of 50,000 32x32 color training images, labeled over 10 categories, and 10,000 test images. Load CIFAR10 dataset using keras's [*dataset*](https://keras.io/datasets/#cifar10-small-image-classification) utility.
+CIFAR10 is a dataset of 50,000 32x32 color (3 channels) training images, labeled over 10 categories, and 10,000 test images. Load CIFAR10 dataset using keras's [*dataset*](https://keras.io/datasets/#cifar10-small-image-classification) utility.
 
 We will use [*categorical cross entropy*](https://keras.io/losses/#categorical_crossentropy) to calculate the loss in model training. Hence, convert the integer representation of 10 categories, in the train and test dataset, to binary representation using [*to_categorical*](https://keras.io/utils/#to_categorical) function. 
 
@@ -69,7 +74,7 @@ Y_test = keras.utils.np_utils.to_categorical(y_test, num_classes)
 
 # Build the Network
 
-Build a sequential model with 3 layers (1 input layer, 1 hidden layer, and 1 output layer). We do not dive deep in to the architectural details of the neural network and focus mainly on our objective of this tutorial to show case how to use multiple GPUs in Keras with MXNet backend. 
+Build a sequential model with 3 layers (1 input layer, 1 hidden layer, and 1 output layer). We do not dive deep in to the architectural details of the neural network. Our objective of this tutorial is to showcase how to use multiple GPUs in Keras with MXNet backend.
 
 ```python
 from keras.models import Sequential
@@ -125,12 +130,11 @@ We first create 'datagen' object of type *ImageDataGenerator* by specifying a se
 
 Data generator is then *fit* on to the training data followed by using *flow()* function of *ImageDataGenerator* to iterate over training data in batches for the given *batch_size* during model training process.
 
-Common best practice is to use a batch_size of 32 per GPU. Since we are use 4 GPUs, we set batch_size to be 32*4.
+Common best practice is to use a batch_size of 32 per GPU. Since we are using 4 GPUs, we set batch_size to be 32*4.
 ```python
 from keras.preprocessing.image import ImageDataGenerator
 
-#
-batch_size = 32*4
+batch_size = 32*4 # 32 per GPU. We use 4 GPUs in the example. Set batch_size to 32*4.
 epochs = 50 # Increase this to 200 for higher accuracy.
 
 # This will do preprocessing and realtime data augmentation:
@@ -165,4 +169,4 @@ history = model.fit_generator(datagen.flow(X_train, Y_train,
 # References
 * This tutorial references code from [keras/examples/cifar10_cnn.py](https://github.com/awslabs/keras-apache-mxnet/blob/master/examples/cifar10_cnn.py)
 * Keras multi_gpu_model API - [https://keras.io/utils/#multi_gpu_model](https://keras.io/utils/#multi_gpu_model)
-* Multi-GPU Training with Keras-MXNet [benchmark results](https://github.com/awslabs/keras-apache-mxnet/tree/master/benchmark).
+* Multi-GPU Training with Keras-MXNet [benchmark results](../../benchmark/README.md)
