@@ -5,7 +5,7 @@
 1. [Install Keras with Apache MXNet backend](#1-install-keras-with-apache-mxnet-backend)
     1. [CPU Setup](#11-cpu-setup)
     2. [GPU Setup](#12-gpu-setup)
-2. [Configure Keras backend and data_format](#2-configure-keras-backend-and-data_format)
+2. [Configure Keras backend and image_data_format](#2-configure-keras-backend-and-image_data_format)
 3. [Validate the Installation](#3-validate-the-installation)
 4. [Train a simple handwritten digit recognition model](#4-train-a-simple-handwritten-digit-recognition-model)
 5. [Next Steps](#5-next-steps) 
@@ -142,16 +142,16 @@ $  nvidia-smi
     $ pip install keras-mxnet --user
 ```
 
-# 2 Configure Keras backend and data_format
+# 2 Configure Keras backend and image_data_format
 
 When you install the `keras-mxnet`, by default, the following values are set.
 
 ```json
 backend: mxnet
-data_format: channels_last
+image_data_format: channels_last
 ```
 
-We strongly recommend changing the data_format to `channels_first`. MXNet is significantly faster on 'channels_first' data. Default is set to 'channels_last' with an objective to be compatible with majority of existing users of Keras. See [performance tips guide](performance_guide.md) for more details.
+We strongly recommend changing the image_data_format to `channels_first`. MXNet is significantly faster on 'channels_first' data. Default is set to 'channels_last' with an objective to be compatible with majority of existing users of Keras. See [performance tips guide](performance_guide.md) for more details.
 
 ```
 NOTE
