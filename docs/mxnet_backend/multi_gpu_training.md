@@ -1,4 +1,6 @@
-# Table of contents
+# Multi-GPU Model Training with Keras-MXNet
+
+# Table of Contents
 
 1. [Overview](#overview)
 2. [Objective](#objective)
