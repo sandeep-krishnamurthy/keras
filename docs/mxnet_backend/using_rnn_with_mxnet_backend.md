@@ -1,30 +1,32 @@
 # Using Recurrent Neural Network (RNN) - Limitations and Workarounds
 
-# Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
 2. [Variable length inputs are not supported](#variable-length-inputs-are-not-supported)
 3. [Unroll=False is not supported](#unroll=False-is-not-supported)
 4. [Slower CPU training performance](#slower-cpu-training-performance)
 
-# Overview
+## Overview
 
-In this document, we describe the limitations of using RNNs with MXNet backend and workarounds for the same.
+In this document, we describe the limitations of using RNNs with MXNet backend and available workarounds for the same.
 
-# Variable length inputs are not supported
+## Variable length inputs are not supported
 
-MXNet backend does not support variable length inputs in the Recurrent Layers. To overcome this limitation, you can pad the input sequences to prepare fixed length inputs. MXNet backend requires `input_shape` and `unroll=True` parameters while adding SimpleRNN/LSTM/GRU layer.
+MXNet backend does not support variable length inputs in the recurrent layers. To overcome this limitation, you can 
+pad the input sequences to prepare fixed length inputs. The MXNet backend requires both the `input_shape` and 
+`unroll=True` parameters while adding the SimpleRNN/LSTM/GRU layer.
 
 ```
 NOTE:
-    MXNet does not support symbolic control flow operators. However, this is a work in progress feature. This feature will be soon supported in upcoming releases.
+    MXNet does not support symbolic control flow operators. However, this is a work in progress feature. This feature will be supported in upcoming releases.
 ```
 
-## Transform variable length to fixed length inputs
+### Transform variable length to fixed length inputs
 
 You should pad the variable length input sequences to make it a fixed length. You can use Keras API - `keras.preprocessing.sequence.pad_sequences` for padding the input.
  
-Below we provide an example usecase for the same:
+Below is an example use case:
 
 ```python
 
@@ -55,11 +57,11 @@ NOTE:
     arbitrary large maxlen. It is always optimal to choose maxlen for padding to be equal to the max length of the 
     input sequences.
 ```
-# Unroll=False is not supported
+## Unroll=False is not supported
 
-As described above, MXNet backend does not support variable length input and hence `unroll=False` is not supported in RNN layers. Users are expected to provide `input_shape` and set `unroll=True`.
+As described above, MXNet backend does not support variable length input and hence `unroll=False` is not supported in RNN layers. You are expected to provide `input_shape` and set `unroll=True`.
 
-# Slower CPU training performance
+## Slower CPU training performance
 
 Performance of training a model with RNN layers on a CPU with MXNet backend is not optimal. This is a known issue and actively being worked on. Please expect this issue to be resolved in further releases of keras-mxnet. See [benchmark results](../../benchmark/README.md) for more detailed analysis.
 

@@ -1,6 +1,6 @@
 # Multi-GPU Model Training with Keras-MXNet
 
-# Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
 2. [Objective](#objective)
@@ -11,19 +11,20 @@
 7. [Train the Model](#train-the-model)
 8. [References](#references)
 
-# Overview
+## Overview
 
-In this tutorial, we will use [Keras](https://keras.io/), with [Apache MXNet](https://mxnet.incubator.apache.org/) backend, on a multi-GPU machine, to train a Convolutional Neural Network (CNN) model on [CIFAR10 small images dataset](https://www.cs.toronto.edu/~kriz/cifar.html).
+In this tutorial, you will use [Keras](https://keras.io/), with [Apache MXNet](https://mxnet.incubator.apache.org/) 
+backend, on a multi-GPU machine, to train a Convolutional Neural Network (CNN) model on [CIFAR10 small images dataset](https://www.cs.toronto.edu/~kriz/cifar.html).
 
 MXNet backend makes large scale multi-GPU model training in Keras significantly faster! See [benchmark results](../../benchmark/README.md) for more details.
 
-# Objective
+## Objective
 
 The main objective of this tutorial is to show *how to use multiple GPUs for training the neural network using Keras with MXNet backend*.
 
 MXNet backend supports Keras's [multi_gpu_model](https://keras.io/utils/#multi_gpu_model) API for distributed multi-gpu model training. All you have to do is pass either a list of GPU IDs or the number of GPUs to be used for training.
 
-Example, for training with `4 GPUs`, we create a multi_gpu_model by passing `gpus=4`.
+For example, when training with four GPUs, you configure the training by passing `gpus=4`.
 
 ```python
 model = Sequential()
@@ -39,24 +40,26 @@ model.compile(loss='categorical_crossentropy',
 
 That's it! MXNet backend will use 4 GPUs for training your model!
 
-Below is the more detailed tutorial to train a Convolutional Neural Network (CNN) model on [CIFAR10 small images dataset](https://www.cs.toronto.edu/~kriz/cifar.html) using Keras with MXNet backend.
+Below is a more detailed tutorial to train a Convolutional Neural Network (CNN) model on [CIFAR10 small images dataset](https://www.cs.toronto.edu/~kriz/cifar.html) using Keras with MXNet backend.
 
 ```
 Note:
-    You cannot provides gpus=1. By default, on a GPU machine, MXNet backend uses the first GPU device.
+    You cannot pass gpus=1. By default, on a GPU machine, MXNet backend uses the first GPU device.
 
 ```
-# Prerequisites
+## Prerequisites
 
 1. GPU machine with CUDA and cuDNN installed
 2. Keras
 3. MXNet with GPU support
 
-Follow the step by step installation instructions [here](installation.md#12-gpu-setup) to set up your machine with Keras with MXNet backend.
+Follow the step by [step installation instructions](installation.md#12-gpu-setup) to set up your machine with 
+Keras-MXNet.
 
-# Prepare the Data
+## Prepare the Data
 
-CIFAR10 is a dataset of 50,000 32x32 color (3 channels) training images, labeled over 10 categories, and 10,000 test images. Load CIFAR10 dataset using keras's [*dataset*](https://keras.io/datasets/#cifar10-small-image-classification) utility.
+CIFAR10 is a dataset of 50,000 32x32 color (3 channels) training images, labeled over 10 categories, and 10,000 test 
+images. Load the CIFAR10 dataset using Keras's [*dataset*](https://keras.io/datasets/#cifar10-small-image-classification) utility.
 
 We will use [*categorical cross entropy*](https://keras.io/losses/#categorical_crossentropy) to calculate the loss in model training. Hence, convert the integer representation of 10 categories, in the train and test dataset, to binary representation using [*to_categorical*](https://keras.io/utils/#to_categorical) function. 
 
@@ -74,7 +77,7 @@ Y_train = keras.utils.np_utils.to_categorical(y_train, num_classes)
 Y_test = keras.utils.np_utils.to_categorical(y_test, num_classes)
 ```
 
-# Build the Network
+## Build the Network
 
 Build a sequential model with 3 layers (1 input layer, 1 hidden layer, and 1 output layer). We do not dive deep in to the architectural details of the neural network. Our objective of this tutorial is to showcase how to use multiple GPUs in Keras with MXNet backend.
 
@@ -107,7 +110,7 @@ model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 ```
-# Build Multi-GPU Model and Compile
+## Build Multi-GPU Model and Compile
 
 You can easily use multiple GPUs for training with Keras's [multi_gpu_model](https://keras.io/utils/#multi_gpu_model) API. You can pass a list of GPU IDs (Ex: gpus=[0,1,2,3]) or just pass number of GPUs to use (Ex: gpus=4). 
 
@@ -124,7 +127,7 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 ```
 
-# Train the Model
+## Train the Model
 
 Most deep learning models dealing with images requires some form of image augmentation (modifying the image) techniques on training data for better accuracy, convergence and various other advantages for a good training process. Keras exposes a powerful collection of image augmentation techniques via *[ImageDataGenerator](https://keras.io/preprocessing/image/#imagedatagenerator)* class. *ImageDataGenerator* augments the image during the training process i.e., it performs just-in-time image augmentation and feed the augmented image to the network.
 
@@ -168,7 +171,7 @@ history = model.fit_generator(datagen.flow(X_train, Y_train,
                         validation_data=(X_test, Y_test))
 ```
 
-# References
+## References
 * This tutorial references code from [keras/examples/cifar10_cnn.py](https://github.com/awslabs/keras-apache-mxnet/blob/master/examples/cifar10_cnn.py)
 * Keras multi_gpu_model API - [https://keras.io/utils/#multi_gpu_model](https://keras.io/utils/#multi_gpu_model)
 * Multi-GPU Training with Keras-MXNet [benchmark results](../../benchmark/README.md)

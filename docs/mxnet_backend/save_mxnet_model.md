@@ -1,13 +1,13 @@
 # Save MXNet model from Keras-MXNet
 
-# Table of Contents
+## Table of Contents
 
 1. [Objective](#objective)
 2. [Train and save a Convolutional Neural Network (CNN) model for MNIST dataset](#train-and-save-a-convolutional-neural-network-(cnn)-model-for-mnist-dataset)
 3. [Import the model in MXNet for Inference](#import-the-model-in-mxnet-for-inference)
 4. [References](#references)
 
-# Objective
+## Objective
 
 In this tutorial, we show how to train a model in Keras-MXNet, export the trained model as Apache MXNet model using `keras.models.save_mxnet_model()` API, and use MXNet natively for inference.
 
@@ -37,7 +37,7 @@ keras.models.save_mxnet_model(model=model, prefix='my_model')
 
 ```
  
-# Train and save a Convolutional Neural Network (CNN) model for MNIST dataset
+## Train and save a Convolutional Neural Network (CNN) model for MNIST dataset
 
 For demonstrating the functionality, we build a simple CNN model in Keras for [MNIST](http://yann.lecun.com/exdb/mnist/) handwritten digit recognition dataset. We save the model in MXNet model format. 
 
@@ -129,7 +129,7 @@ We will now have 2 files (MXNet model) in the current directory.
 
 In the next section, we show how to load this model in the native MXNet engine and perform inference.
 
-# Import the model in MXNet for Inference
+## Import the model in MXNet for Inference
 
 `keras.model.save_mxnet_model()` API will return the `data_names` and `data_shapes` to be used for binding the model with MXNet engine. 
 
@@ -169,7 +169,7 @@ That's it! We trained a CNN model with Keras interface and used MXNet native eng
 note that we can use any language binding supported by MXNet (Scala/Python/Julia/C++) for inference based on your 
 production environment setup and requirements.
 
-# References
+## References
 1. [MXNet Module](https://mxnet.incubator.apache.org/api/python/module/module.html)
 2. [MXNet Predicting with Pre-Trained Model](https://mxnet.incubator.apache.org/tutorials/python/predict_image.html)
 3. [Keras MNIST CNN code](https://github.com/awslabs/keras-apache-mxnet/blob/master/examples/mnist_cnn.py)

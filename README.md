@@ -10,12 +10,11 @@
 
 ## You have just found Keras-MXNet
 
-Keras is a high-level neural networks API, written in Python and capable of running on top of [Apache MXNet](https://github.com/apache/incubator-mxnet/), [TensorFlow](https://github.com/tensorflow/tensorflow), [CNTK](https://github.com/Microsoft/cntk), or [Theano](https://github.com/Theano/Theano). It was developed with a focus on enabling fast experimentation. *Being able to go from idea to result with the least possible delay is key to doing good research.*
+Keras is a high-level neural networks API, written in Python and capable of running on top of [Apache MXNet (incubating)](https://github.com/apache/incubator-mxnet/), [TensorFlow](https://github.com/tensorflow/tensorflow), [CNTK](https://github.com/Microsoft/cntk), or [Theano](https://github.com/Theano/Theano). It was developed with a focus on enabling fast experimentation. *Being able to go from idea to result with the least possible delay is key to doing good research.*
 
-Keras-MXNet is the fork of [Keras project](https://github.com/keras-team/keras) and adds support for the high-performance scalable Deep Learning library 
-Apache MXNet as a backend.
+Keras-MXNet is the fork of [Keras project](https://github.com/keras-team/keras) and adds support for the high-performance, scalable deep learning library MXNet as a backend.
 
-Detailed documentation for MXNet backend are provided in the [docs/mxnet_backend folder](docs/mxnet_backend/README.md).
+Detailed documentation for the MXNet backend are provided in the [docs/mxnet_backend folder](docs/mxnet_backend/README.md).
 
 
 Use Keras if you need a deep learning library that:
@@ -157,7 +156,7 @@ First, clone Keras using `git`:
 git clone https://github.com/awslabs/keras-apache-mxnet.git
 ```
 
- Then, `cd` to the Keras folder and run the install command:
+ Then, `cd` to the keras-apache-mxnet folder and run the install command:
 ```sh
 cd keras
 sudo python setup.py install
