@@ -4,7 +4,7 @@
 
 1. [Overview](#overview)
 2. [Variable length inputs are not supported](#variable-length-inputs-are-not-supported)
-3. [Unroll=False is not supported](#unroll=False-is-not-supported)
+3. [Unroll=False is not supported](#unrollfalse-is-not-supported)
 4. [Slower CPU training performance](#slower-cpu-training-performance)
 
 ## Overview

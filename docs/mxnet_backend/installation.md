@@ -231,5 +231,6 @@ Congratulations! You have successfully installed Apache MXNet, Keras with MXNet 
 
 * Read the Keras documentation at [Keras.io](https://keras.io/).
 * For more examples explore [keras/examples](https://github.com/awslabs/keras-apache-mxnet/tree/master/examples) directory.
-* Tutorial on how to use multiple GPUs with MXNet backend - [Multi-GPU Distributed Training with Keras and Apache MXNet](multi_gpu_trainig.md)
+* Tutorial on how to use multiple GPUs with MXNet backend - [Multi-GPU Distributed Training with Keras and Apache MXNet](multi_gpu_training.md)
+* Tutorial on how to save MXNet model from Keras-MXNet - [Save MXNet model from Keras-MXNet](save_mxnet_model.md)
 * Tips for high performance with Keras-MXNet - [Performance Guide for MXNet Backend](performance_guide.md)

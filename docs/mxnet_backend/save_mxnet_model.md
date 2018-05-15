@@ -3,8 +3,7 @@
 ## Table of Contents
 
 1. [Objective](#objective)
-2. [Train and Save a Convolutional Neural Network (CNN) Model for MNIST Dataset]
-(#train-and-save-a-convolutional-neural-network-(cnn)-model-for-mnist-dataset)
+2. [Train and Save a Convolutional Neural Network (CNN) Model for MNIST Dataset](#train-and-save-a-convolutional-neural-network-cnn-model-for-mnist-dataset)
 3. [Import the model in MXNet for Inference](#import-the-model-in-mxnet-for-inference)
 4. [References](#references)
 
@@ -172,7 +171,7 @@ result = mod.predict(data_iter)
 # Check what is the predicted value and actual value
 # We have predicted 10000 samples in test_data. Use different indexes to see different sample results.
 idx = 1020
-print("Predicted - ", mx.ndarray.argmax(np.argmax(result[idx].asnumpy())))
+print("Predicted - ", np.argmax(result[idx].asnumpy()))
 print("Actual - ", labels[idx])
 ```
 
