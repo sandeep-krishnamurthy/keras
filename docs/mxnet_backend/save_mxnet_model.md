@@ -3,7 +3,8 @@
 ## Table of Contents
 
 1. [Objective](#objective)
-2. [Train and save a Convolutional Neural Network (CNN) model for MNIST dataset](#train-and-save-a-convolutional-neural-network-(cnn)-model-for-mnist-dataset)
+2. [Train and Save a Convolutional Neural Network (CNN) Model for MNIST Dataset]
+(#train-and-save-a-convolutional-neural-network-(cnn)-model-for-mnist-dataset)
 3. [Import the model in MXNet for Inference](#import-the-model-in-mxnet-for-inference)
 4. [References](#references)
 
@@ -11,12 +12,22 @@
 
 In this tutorial, we show how to train a model in Keras-MXNet, export the trained model as Apache MXNet model using `keras.models.save_mxnet_model()` API, and use MXNet natively for inference.
 
-Keras interface is known for its easy to use APIs enabling fast prototyping in Deep Learning research. Apache MXNet is known for its high performance, production ready engine. With Keras-MXNet, you get out-of-the-box API to export the trained Keras model in MXNet model format. 
-You can now use Keras for training the model and MXNet for inference in production. You can use this API to save the 
-models trained on the CPU, 1 GPU or multiple GPUs.
+The Keras interface is known for its easy to use APIs, enabling fast prototyping in deep learning research. 
+MXNet is known for its high performance, production ready engine. With Keras-MXNet, you get an out-of-the-box API to 
+export most trained Keras models in MXNet model format. 
+You can now use Keras-MXNet for training the model and MXNet for inference in production. You can use `keras.models.save_mxnet_model()` API to save 
+the models trained on the CPU, a single GPU or multiple GPUs.
 
-You can use any language bindings supported by MXNet (Scala/Python/Julia/C++) for performing inference with these 
-models!
+You can use any language bindings supported by MXNet (Scala/Python/Julia/C++/R/Perl) for performing inference with these models!
+
+`Warning` Not all Keras operators and functionalities are supported with MXNet backend. For more information, view the the list
+ of known issues and unsupported functionalities [here](https://github.com/awslabs/keras-apache-mxnet/issues/18).
+
+This API accepts the following arguments:
+* model: Keras model instance to be saved as MXNet model.
+* prefix: Prefix name of the saved Model (symbol and params) files. Model will be saved as 'prefix-symbol.json' and 'prefix-epoch.params'.
+* epoch: (Optional) Tag the params file with epoch of the model being saved. Default is 0. Model params file is saved as 'prefix-epoch.params' or 'prefix-0000.params' by default.
+
 
 To summarize, all you have to do is to call the `keras.models.save_mxnet_model()` API by passing the trained Keras 
 model to be exported in MXNet model format.
@@ -33,18 +44,14 @@ model.fit(x_train, y_train,
 keras.models.save_mxnet_model(model=model, prefix='my_model')
 
 # You get the MXNet model - (my_model-symbol.json, my_model-0000.params) in your current directory.
-# Symbol and Params are 2 files representing native MXNet model.
+# Symbol and Params are two files representing a native MXNet model.
 
 ```
  
 ## Train and save a Convolutional Neural Network (CNN) model for MNIST dataset
 
-For demonstrating the functionality, we build a simple CNN model in Keras for [MNIST](http://yann.lecun.com/exdb/mnist/) handwritten digit recognition dataset. We save the model in MXNet model format. 
-
-We use `keras.models.save_mxnet_model()` API. This API accepts the following arguments:
-* model: Keras model instance to be saved as MXNet model.
-* prefix: Prefix name of the saved Model (symbol and params) files. Model will be saved as 'prefix-symbol.json' and 'prefix-epoch.params'.
-* epoch: (Optional) Tag the params file with epoch of the model being saved. Default is 0. Model params file is saved as 'prefix-epoch.params' or 'prefix-0000.params' by default.
+We provide the following example for building a simple CNN model in Keras for [MNIST](http://yann.lecun.com/exdb/mnist/) handwritten digit recognition dataset. As you follow the example, you will save the model in the 
+MXNet model format. You will use the `keras.models.save_mxnet_model()` API.
 
 ```python
 # Reference - https://github.com/awslabs/keras-apache-mxnet/blob/master/examples/mnist_cnn.py
@@ -64,7 +71,7 @@ from keras.models import save_mxnet_model
 
 batch_size = 128
 num_classes = 10
-epochs = 12
+epochs = 5
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -123,7 +130,7 @@ print('Test accuracy:', score[1])
 data_names, data_shapes = save_mxnet_model(model=model, prefix='mnist_cnn', epoch=0)
 ``` 
 
-We will now have 2 files (MXNet model) in the current directory.
+After running this script, you will now have two files for an MXNet model in the current directory.
 * mnist_cnn-symbol.json
 * mnist_cnn-0000.params
 
@@ -131,12 +138,10 @@ In the next section, we show how to load this model in the native MXNet engine a
 
 ## Import the model in MXNet for Inference
 
-`keras.model.save_mxnet_model()` API will return the `data_names` and `data_shapes` to be used for binding the model with MXNet engine. 
-
-In this section, we show how to load the CNN model, we trained in the previous section, in the MXNet engine. We also 
-perform inference with the native MXNet engine.
+The `keras.model.save_mxnet_model()` API will return the `data_names` and `data_shapes` to be used for binding the model with MXNet engine. 
 
 ```python
+import numpy as np
 import mxnet as mx
 
 # Step1: Load the model in MXNet
@@ -145,8 +150,12 @@ import mxnet as mx
 sym, arg_params, aux_params = mx.model.load_checkpoint(prefix='mnist_cnn', epoch=0)
 
 # We use the data_names and data_shapes returned by save_mxnet_model API.
-mod = mx.mod.Module(symbol=sym, data_names=['/dense_1_input1'], context=mx.cpu(), label_names=None)
-mod.bind(for_training=False, data_shapes=[('/dense_1_input1', (1,784))], 
+mod = mx.mod.Module(symbol=sym, 
+                    data_names=['/conv2d_1_input1'], 
+                    context=mx.cpu(), 
+                    label_names=None)
+mod.bind(for_training=False, 
+         data_shapes=[('/conv2d_1_input1', (1,1,28,28))], 
          label_shapes=mod._label_shapes)
 mod.set_params(arg_params, aux_params, allow_missing=True)
 
@@ -157,16 +166,18 @@ mod.set_params(arg_params, aux_params, allow_missing=True)
 mnist = mx.test_utils.get_mnist()
 labels = mnist['test_label']
 test_data = mnist['test_data']
-test_data = test_data.reshape((10000, 1, 784))
 data_iter = mx.io.NDArrayIter(test_data, None, 1)
 result = mod.predict(data_iter)
+
+# Check what is the predicted value and actual value
+# We have predicted 10000 samples in test_data. Use different indexes to see different sample results.
 idx = 1020
-print("Predicted - ", mx.ndarray.argmax(result[idx]))
+print("Predicted - ", mx.ndarray.argmax(np.argmax(result[idx].asnumpy())))
 print("Actual - ", labels[idx])
 ```
 
 That's it! We trained a CNN model with Keras interface and used MXNet native engine in Python for inference. Also 
-note that we can use any language binding supported by MXNet (Scala/Python/Julia/C++) for inference based on your 
+note that we can use any language binding supported by MXNet (Scala/Python/Julia/C++/R/Perl) for inference based on your 
 production environment setup and requirements.
 
 ## References

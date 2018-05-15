@@ -20,11 +20,12 @@ image_data_format: channels_last
 ```
 
 We strongly recommend changing the image_data_format to `channels_first`. MXNet is significantly faster on 
-'channels_first' data. 'channels_first' data format is optimal for training on NVIDIA GPUs with cuDNN, see 
+`channels_first` data. `channels_first` data format is optimal for training on NVIDIA GPUs with cuDNN, see 
 the [TensorFlow Performance Guide](https://www.tensorflow.org/performance/performance_guide#data_formats) for more 
 details.
 
-The default is set to 'channels_last' with an objective to be compatible with the majority of existing users of Keras-TensorFlow.
+The default is set to `channels_last` with an objective to be compatible with the majority of existing users of 
+Keras-TensorFlow.
 
 You will see the following user warning with `channels_last` data format in MXNet backend.
 
@@ -62,13 +63,13 @@ NOTE:
 You need to update the input shapes in the network to channels first format. For example, using Conv2D on the color 
 images with size 256 by 256, you need to set:
 
-For channels last format, set the input_shape parameter as follows:
+For channels last format, set the `input_shape` parameter as follows:
 
 ```
     model.add(Conv2D(32, (3, 3), padding='same', input_shape=(256,256,3)))
 ```
 
-For channels first format, set the input_shape parameter as follows:
+For channels first format, set the `input_shape` parameter as follows:
 
 ```
     model.add(Conv2D(32, (3, 3), padding='same', input_shape=(3, 256,256)))
