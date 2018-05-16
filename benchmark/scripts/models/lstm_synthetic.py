@@ -5,14 +5,17 @@ https://github.com/tensorflow/benchmarks/blob/keras-benchmarks/scripts/keras_ben
 """
 
 from __future__ import print_function
+import logging
 import keras
+
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
 from keras.utils import multi_gpu_model
 
-from models import timehistory
+from .timehistory import TimeHistory
+from logging_metrics import LoggingMetrics
 from data_generator import generate_text_input_data
 
 if keras.backend.backend() != 'mxnet' and \
@@ -22,6 +25,8 @@ if keras.backend.backend() != 'mxnet' and \
 
 if keras.backend.backend() == 'tensorflow':
     import tensorflow as tf
+
+logging.basicConfig(level=logging.INFO, filename='benchmark_results_'+keras.backend.backend()+'_lstm_synthetic')
 
 
 def crossentropy_from_logits(y_true, y_pred):
@@ -90,20 +95,19 @@ class LstmBenchmark:
         else:
             model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
-        time_callback = timehistory.TimeHistory()
+        time_callback = TimeHistory()
 
         if use_dataset_tensors:
-            model.fit(epochs=self.epochs, steps_per_epoch=15,
-                      callbacks=[time_callback])
+            history_callback = model.fit(epochs=self.epochs, steps_per_epoch=15,
+                                         callbacks=[time_callback])
         else:
-            model.fit(x_train, y_train,
-                      batch_size=self.batch_size,
-                      epochs=self.epochs,
-                      callbacks=[time_callback])
+            history_callback = model.fit(x_train, y_train,
+                                         batch_size=self.batch_size,
+                                         epochs=self.epochs,
+                                         callbacks=[time_callback])
 
-        self.total_time = 0
-        for i in range(1, self.epochs):
-            self.total_time += time_callback.times[i]
+        log = LoggingMetrics(history_callback, time_callback)
+        log.save_metrics_to_log(logging)
 
         if keras.backend.backend() == "tensorflow":
             keras.backend.clear_session()
