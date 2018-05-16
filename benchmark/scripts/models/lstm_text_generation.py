@@ -31,8 +31,6 @@ if keras.backend.backend() != 'mxnet' and \
 if keras.backend.backend() == 'tensorflow':
     import tensorflow as tf
 
-logging.basicConfig(level=logging.INFO, filename='benchmark_results_'+keras.backend.backend()+'_lstm_test_generation')
-
 
 def crossentropy_from_logits(y_true, y_pred):
     return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred)
@@ -49,6 +47,13 @@ class LstmBenchmark:
         self.dataset_name = dataset_name
 
     def run_benchmark(self, gpus=0, inference=False, use_dataset_tensors=False, epochs=20):
+        # prepare logging
+        # file name: backend_data_format_dataset_model_batch_size_gpus.log
+        log_file = keras.backend.backend() + '_' + keras.backend.image_data_format() + \
+                   '_lstm_test_generation_' + self.dataset_name + '_batch_size_' + \
+                   str(self.batch_size) + '_' + str(gpus) + 'gpus.log'
+        logging.basicConfig(level=logging.INFO, filename=log_file)
+
         self.epochs = epochs
         print("Running model ", self.test_name)
         keras.backend.set_learning_phase(True)
