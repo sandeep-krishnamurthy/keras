@@ -7,6 +7,10 @@
         variable length sequences. Below results are only early preview of the current status.
 ```
 
+Please see [RNN with Keras-MXNet document](../docs/mxnet_backend/using_rnn_with_mxnet_backend.md) for more details on
+ the poor CPU training performance and unsupported functionalities. 
+ 
+
 ### LSTM-Nietzsche
 
 | Instance Type | GPUs  | Batch Size  | Keras-MXNet (Time/Epoch), (GPU Mem)   | Keras-TensorFlow (Time/Epoch), (GPU Mem)   |
