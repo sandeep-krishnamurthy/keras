@@ -60,9 +60,6 @@ NOTE:
 
 ### CNN Benchmark Results
 
-Please see the [detailed CNN benchmark results](benchmark_result/CNN_result.md) for more details on the hardware and software 
-setup - Instance type, MXNet, TensorFlow versions and more.
-
 #### ResNet50-ImageNet
 
 | Instance Type | GPUs  | Batch Size  | Keras-MXNet (img/sec)  | Keras-TensorFlow (img/sec)  |
@@ -86,6 +83,7 @@ setup - Instance type, MXNet, TensorFlow versions and more.
 | Instance Type | GPUs  | Batch Size  | Keras-MXNet (img/sec)  | Keras-TensorFlow (img/sec)  |
 |---|---|---|---|---|
 |  C5.18X Large | 0  | 32  | 87  | 59  |
+|  P3.8X Large | 1  | 32  | TBD  | TBD  |
 |  P3.8X Large |  4 |  128 | 1792  | 1020  |
 |  P3.16X Large | 8  | 256  | 1618  | 962  |
 
@@ -109,9 +107,6 @@ Currently, this utility helps in benchmarking on the following datasets:
 
 ### RNN Benchmark Results
 
-Please see the [detailed RNN benchmark results](benchmark_result/RNN_result.md) for more details on the hardware and 
-software setup - Instance type, MXNet, TensorFlow versions and more.
-
 #### LSTM-Nietzsche
 
 | Instance Type | GPUs  | Batch Size  | Keras-MXNet (Time/Epoch), (GPU Mem)   | Keras-TensorFlow (Time/Epoch), (GPU Mem)   |
@@ -119,6 +114,7 @@ software setup - Instance type, MXNet, TensorFlow versions and more.
 |  C5.18X Large | 0  | 128  | 78 sec, N/A | 55 sec, N/A|
 |  P3.8X Large |  1 |  128 | 52 sec, 792 MB | 51 sec, 15360 MB|
 |  P3.8X Large | 4  | 128  | 47 sec, 770 MB | 87 sec, 15410 MB |
+|  P3.16X Large | 8  | 128  | TBD | TBD |
 
 #### LSTM-WikiText2
 
@@ -127,6 +123,7 @@ software setup - Instance type, MXNet, TensorFlow versions and more.
 |  C5.18X Large | 0  | 128  | 1345 sec, N/A  | 875, N/A  |
 |  P3.8X Large |  1 |  128 | 868 sec, 772 MB | 817, 15360 MB  |
 |  P3.8X Large | 4  | 128  | 775 sec, 764 MB | 1468, 15410 MB  |
+|  P3.16X Large | 8  | 128  | TBD | TBD |
 
 #### Synthetic Data
 
@@ -135,6 +132,7 @@ software setup - Instance type, MXNet, TensorFlow versions and more.
 |  C5.18X Large | 0  | 128  | 24 sec, N/A | 14 sec, N/A|
 |  P3.8X Large |  1 |  128 | 13 sec, 792 MB | 12 sec, 15360 MB|
 |  P3.8X Large | 4  | 128  | 12 sec, 770 MB | 21 sec, 15410 MB |
+|  P3.16X Large | 8  | 128  | TBD | TBD |
 
 ## Setup
 
