@@ -6,8 +6,7 @@
 2. [Library Versions](#library-versions)
 3. [CNN Benchmarks](#cnn-benchmarks)
     1. [CNN Benchmark Results](#cnn-benchmark-results)
-4. [RNN Benchmarks](#rnn-benchmarks)
-    1. [RNN Benchmark Results](#rnn-benchmark-results)
+4. [RNN Benchmarks (Experimental)](#rnn-benchmarks-experimental)
 5. [Setup](#setup)
 6. [How to Run CNN Benchmarks](#how-to-run-cnn-benchmarks)
 7. [How to Run RNN Benchmarks](#how-to-run-rnn-benchmarks)
@@ -20,15 +19,14 @@ Recurrent Neural Network (RNN) Keras models. You can use these scripts to genera
 multi-GPU instances. Apache MXNet and TensorFlow backends are supported for generating the benchmark results.
 
 
-`CREDITS:` This benchmark module borrows and extends the benchmark utility from [TensorFlow Keras benchmarks]
-(https://github.com/tensorflow/benchmarks/tree/keras-benchmarks).
+`CREDITS:` This benchmark module borrows and extends the benchmark utility from 
+[TensorFlow Keras benchmarks](https://github.com/tensorflow/benchmarks/tree/keras-benchmarks).
 
 ## Library Versions
 
 ```
 NOTE:
-    The below benchmarks use native pip packages provided by the frameworks without any optimized compile builds. See the setup section for more details.
-
+    The below benchmarks use native pip packages provided by the frameworks without any optimized compile builds.
 ```
 | Framework | Version | Installation |
 | --- | --- | --- |
@@ -52,7 +50,7 @@ Currently, this utility helps in benchmarking on the following datasets:
 
 ```
 NOTE:
-    1. For CIFAR10 and synthetic data, the benchmark scripts will download/generate the required data.
+    1. For CIFAR10 and synthetic data, the benchmark scripts will download and generate the required data respectively.
     2. For ImageNet data, you are expected to download the data - http://image-net.org/download
     3. You can benchmark with a different number of layers in ResNet.
 
@@ -100,9 +98,13 @@ NOTE:
     4. P3 instance details (Volta GPU) - https://aws.amazon.com/ec2/instance-types/p3/
 ```
 
-## RNN Benchmarks
+## RNN Benchmarks (Experimental)
 
-Currently, this utility helps in benchmarking the following RNN networks:
+RNN support in Keras-MXNet is experimental with few rough edges on CPU training performance and no support for 
+[variable length sequence](../docs/mxnet_backend/using_rnn_with_mxnet_backend.md).
+
+RNN Benchmark results will be soon added in the future releases. However, you can use this benchmark utility for 
+benchmarking the following RNN networks:
 1. [LSTM Text Generation](https://github.com/awslabs/keras-apache-mxnet/blob/master/benchmark/scripts/models/lstm_text_generation.pyy)
 
 Currently, this utility helps in benchmarking on the following datasets:
@@ -110,37 +112,6 @@ Currently, this utility helps in benchmarking on the following datasets:
 2. [WikiText-2](https://einstein.ai/research/the-wikitext-long-term-dependency-language-modeling-dataset)
 3. Synthetic data
 
-### RNN Benchmark Results
-
-#### LSTM-Nietzsche
-
-| Instance Type | GPUs  | Batch Size  | Keras-MXNet (Time/Epoch), (GPU Mem)   | Keras-TensorFlow (Time/Epoch), (GPU Mem)   |
-|---|---|---|---|---|
-|  C5.18X Large | 0  | 128  | 78 sec, N/A | 55 sec, N/A|
-|  P3.8X Large |  1 |  128 | 52 sec, 792 MB | 51 sec, 15360 MB|
-|  P3.8X Large | 4  | 128  | 47 sec, 770 MB | 87 sec, 15410 MB |
-|  P3.16X Large | 8  | 128  | TBD | TBD |
-
-#### LSTM-WikiText2
-
-| Instance Type | GPUs  | Batch Size  | Keras-MXNet (Time/Epoch), (GPU Mem)  | Keras-TensorFlow (Time/Epoch), (GPU Mem)  |
-|---|---|---|---|---|
-|  C5.18X Large | 0  | 128  | 1345 sec, N/A  | 875, N/A  |
-|  P3.8X Large |  1 |  128 | 868 sec, 772 MB | 817, 15360 MB  |
-|  P3.8X Large | 4  | 128  | 775 sec, 764 MB | 1468, 15410 MB  |
-|  P3.16X Large | 8  | 128  | TBD | TBD |
-
-#### Synthetic Data
-
-| Instance Type | GPUs  | Batch Size  | Keras-MXNet (Time/Epoch), (GPU Mem)   | Keras-TensorFlow (Time/Epoch), (GPU Mem)   |
-|---|---|---|---|---|
-|  C5.18X Large | 0  | 128  | 24 sec, N/A | 14 sec, N/A|
-|  P3.8X Large |  1 |  128 | 13 sec, 792 MB | 12 sec, 15360 MB|
-|  P3.8X Large | 4  | 128  | 12 sec, 770 MB | 21 sec, 15410 MB |
-|  P3.16X Large | 8  | 128  | TBD | TBD |
-
-You can see more benchmark experiments with different instance types, batch_size and other parameters in [detailed RNN 
-results document](benchmark_result/RNN_result.md).
 
 ## Setup
 
