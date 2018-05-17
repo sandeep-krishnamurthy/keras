@@ -22,6 +22,12 @@ multi-GPU instances. Apache MXNet and TensorFlow backends are supported for gene
 `CREDITS:` This benchmark module borrows and extends the benchmark utility from [TensorFlow Keras benchmarks]
 (https://github.com/tensorflow/benchmarks/tree/keras-benchmarks).
 
+
+```
+NOTE:
+    The below benchmarks use native pip packages provided by the frameworks without any optimized compile builds. See the setup section for more details.
+
+```
 ## CNN Benchmarks
 
 Currently, this utility helps in benchmarking the following CNN networks:
@@ -35,8 +41,8 @@ Currently, this utility helps in benchmarking on the following datasets:
 ```
 NOTE:
     1. For CIFAR10 and synthetic data, the benchmark scripts will download/generate the required data.
-    2. For ImageNet data, you are expecetd ot download the data - http://image-net.org/download
-    3. You can benchmark with different number of layers in ResNet.
+    2. For ImageNet data, you are expected to download the data - http://image-net.org/download
+    3. You can benchmark with a different number of layers in ResNet.
 
 ```
 
@@ -174,12 +180,12 @@ For MXNet backend benchmarks, set `backend: mxnet` and `image_data_format: chann
 ```
     $ python benchmark_resnet.py --dataset cifar10 --version 1 --layers 56 --gpus 4 --epoch 20
 ```
-Set appropriate number of gpus, epochs based on your experiments.
+Set number of gpus, epochs based on your experiments.
 
 
 ### ResNet50-Synthetic
 
-We have a utility shell script that you can run for benchmarking on synthetic data.
+We have a utility shell script that you can run for benchmarking on the synthetic data.
 
 For MXNet backend benchmarks:
 ```
@@ -197,13 +203,13 @@ For TensorFlow backend benchmarks:
     $ sh run_tf_backend.sh 8_gpu_config resnet50 False 20 # For 8 GPU Benchmarks
 ```
 
-The last parameter, 20, in the command is number of epoch.
+The last parameter, 20, in the command is the number of epoch.
 
 ## How to Run RNN Benchmarks
 
 #### LSTM-Nietzsche
 
-You can use the utility shell script to run the RNN benchmark on Nietzsche dataset.
+You can use the utility shell script to run the RNN benchmark on the Nietzsche dataset.
 
 For MXNet backend benchmarks:
 ```
@@ -223,7 +229,7 @@ For TensorFlow backend benchmarks:
 
 #### LSTM-WikiText2
 
-You can use the utility shell script to run the RNN benchmark on WikiText2 dataset.
+You can use the utility shell script to run the RNN benchmark on the WikiText2 dataset.
 
 For MXNet backend benchmarks:
 ```
@@ -244,7 +250,7 @@ For TensorFlow backend benchmarks:
 
 #### Synthetic Data
 
-You can use the utility shell script to run the RNN benchmark on Synthetic dataset.
+You can use the utility shell script to run the RNN benchmark on the Synthetic dataset.
 
 For MXNet backend benchmarks:
 ```
