@@ -529,7 +529,7 @@ def test_saving_model_with_long_layer_names():
 
     os.remove(fname)
 
-    # The chunking of layer names array should have happend.
+    # The chunking of layer names array should have happened.
     assert n_layer_names_arrays > 0
 
     out2 = model.predict(x)
@@ -574,7 +574,7 @@ def test_saving_model_with_long_weights_names():
 
     os.remove(fname)
 
-    # The chunking of layer names array should have happend.
+    # The chunking of layer names array should have happened.
     assert n_weight_names_arrays > 0
 
     out2 = model.predict(x)
