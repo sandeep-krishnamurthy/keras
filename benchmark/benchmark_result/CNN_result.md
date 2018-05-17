@@ -42,6 +42,18 @@
 |  Training Method | [`train_on_batch`](https://keras.io/models/sequential/#train_on_batch), [`fit_generator`](https://keras.io/models/sequential/#fit_generator) |
 |  Training Scripts | [ResNet Script](https://github.com/awslabs/keras-apache-mxnet/blob/master/benchmark/image-classification/benchmark_resnet.py) |
 
+First, download ImageNet Dataset from [here](http://image-net.org/download), there are total 1.4 million images 
+with 1000 classes, each class is in a subfolder. In this script, each image is processed to size 256x256
+
+Since ImageNet Dataset is too large, there are two training mode for data that does not fit into memory: 
+[`train_on_batch`](https://keras.io/models/sequential/#train_on_batch) and 
+[`fit_generator`](https://keras.io/models/sequential/#fit_generator), 
+we recommend train_on_batch since it's more efficient on multi_gpu.
+(Refer to [Keras Document](https://keras.io/getting-started/faq/#how-can-i-use-keras-with-datasets-that-dont-fit-in-memory) 
+and Keras Issue [#9502](https://github.com/keras-team/keras/issues/9502), 
+[#9204](https://github.com/keras-team/keras/issues/9204), [#9647](https://github.com/keras-team/keras/issues/9647))
+
+
 ### Results
 
 |  Instance | GPU used | Backend | Package | Method | Batch Size | Data Format | Speed (images/s) |
