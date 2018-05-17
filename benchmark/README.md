@@ -3,7 +3,8 @@
 # Table of Contents
 
 1. [Overview](#overview)
-2. [CNN Benchmarks](#cnn-benchmarks)
+2. [Library Versions](#library-versions)
+3. [CNN Benchmarks](#cnn-benchmarks)
     1. [CNN Benchmark Results](#cnn-benchmark-results)
 4. [RNN Benchmarks](#rnn-benchmarks)
     1. [RNN Benchmark Results](#rnn-benchmark-results)
@@ -22,12 +23,23 @@ multi-GPU instances. Apache MXNet and TensorFlow backends are supported for gene
 `CREDITS:` This benchmark module borrows and extends the benchmark utility from [TensorFlow Keras benchmarks]
 (https://github.com/tensorflow/benchmarks/tree/keras-benchmarks).
 
+## Library Versions
 
 ```
 NOTE:
     The below benchmarks use native pip packages provided by the frameworks without any optimized compile builds. See the setup section for more details.
 
 ```
+| Framework | Version | Installation |
+| --- | --- | --- |
+|  Keras | 2.1.6 | pip install keras-mxnet  |
+|  MXNet (CPU) | 1.2 | pip install mxnet-mkl  |
+| MXNet (GPU) | 1.2 | pip install mxnet-cu90 |
+| TensorFlow (CPU) | 1.8 | pip install tensorflow |
+| TensorFlow (GPU) | 1.8 | pip install tensorflow-gpu |
+| CUDA | 9.0 | |
+| cuDNN | 7.0.5 | |
+ 
 ## CNN Benchmarks
 
 Currently, this utility helps in benchmarking the following CNN networks:
