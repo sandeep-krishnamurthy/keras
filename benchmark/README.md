@@ -87,6 +87,11 @@ NOTE:
 |  P3.8X Large |  4 |  128 | 1792  | 1020  |
 |  P3.16X Large | 8  | 256  | 1618  | 962  |
 
+
+You can see more benchmark experiments with different instance types, batch_size and other parameters in [detailed CNN 
+results document](benchmark_result/CNN_result.md).
+
+ 
 ```
 NOTE:
     1. Image_data_format for MXNet backend - 'channels_first'
@@ -133,6 +138,9 @@ Currently, this utility helps in benchmarking on the following datasets:
 |  P3.8X Large |  1 |  128 | 13 sec, 792 MB | 12 sec, 15360 MB|
 |  P3.8X Large | 4  | 128  | 12 sec, 770 MB | 21 sec, 15410 MB |
 |  P3.16X Large | 8  | 128  | TBD | TBD |
+
+You can see more benchmark experiments with different instance types, batch_size and other parameters in [detailed RNN 
+results document](benchmark_result/RNN_result.md).
 
 ## Setup
 
