@@ -210,10 +210,10 @@ For MXNet backend benchmarks:
 
 For TensorFlow backend benchmarks:
 ```
-    $ sh run_tf_backend.sh cpu_config lstm_nietzsche False 20 # For CPU Benchmarks
-    $ sh run_tf_backend.sh gpu_config lstm_nietzsche False 20 # For 1 GPU Benchmarks
-    $ sh run_tf_backend.sh 4_gpu_config lstm_nietzsche False 20 # For 4 GPU Benchmarks
-    $ sh run_tf_backend.sh 8_gpu_config lstm_nietzsche False 20 # For 8 GPU Benchmarks
+    $ sh run_tf_backend.sh cpu_config lstm_nietzsche False 10 # For CPU Benchmarks
+    $ sh run_tf_backend.sh gpu_config lstm_nietzsche False 10 # For 1 GPU Benchmarks
+    $ sh run_tf_backend.sh 4_gpu_config lstm_nietzsche False 10 # For 4 GPU Benchmarks
+    $ sh run_tf_backend.sh 8_gpu_config lstm_nietzsche False 10 # For 8 GPU Benchmarks
 ```
 
 #### LSTM-WikiText2
@@ -230,10 +230,10 @@ For MXNet backend benchmarks:
 
 For TensorFlow backend benchmarks:
 ```
-    $ sh run_tf_backend.sh cpu_config lstm_wikitext2 False 20 # For CPU Benchmarks
-    $ sh run_tf_backend.sh gpu_config lstm_wikitext2 False 20 # For 1 GPU Benchmarks
-    $ sh run_tf_backend.sh 4_gpu_config lstm_wikitext2 False 20 # For 4 GPU Benchmarks
-    $ sh run_tf_backend.sh 8_gpu_config lstm_wikitext2 False 20 # For 8 GPU Benchmarks
+    $ sh run_tf_backend.sh cpu_config lstm_wikitext2 False 10 # For CPU Benchmarks
+    $ sh run_tf_backend.sh gpu_config lstm_wikitext2 False 10 # For 1 GPU Benchmarks
+    $ sh run_tf_backend.sh 4_gpu_config lstm_wikitext2 False 10 # For 4 GPU Benchmarks
+    $ sh run_tf_backend.sh 8_gpu_config lstm_wikitext2 False 10 # For 8 GPU Benchmarks
 ```
 
 
@@ -251,10 +251,10 @@ For MXNet backend benchmarks:
 
 For TensorFlow backend benchmarks:
 ```
-    $ sh run_tf_backend.sh cpu_config lstm_synthetic False 20 # For CPU Benchmarks
-    $ sh run_tf_backend.sh gpu_config lstm_synthetic False 20 # For 1 GPU Benchmarks
-    $ sh run_tf_backend.sh 4_gpu_config lstm_synthetic False 20 # For 4 GPU Benchmarks
-    $ sh run_tf_backend.sh 8_gpu_config lstm_synthetic False 20 # For 8 GPU Benchmarks
+    $ sh run_tf_backend.sh cpu_config lstm_synthetic False 10 # For CPU Benchmarks
+    $ sh run_tf_backend.sh gpu_config lstm_synthetic False 10 # For 1 GPU Benchmarks
+    $ sh run_tf_backend.sh 4_gpu_config lstm_synthetic False 10 # For 4 GPU Benchmarks
+    $ sh run_tf_backend.sh 8_gpu_config lstm_synthetic False 10 # For 8 GPU Benchmarks
 ```
 
 ## References
