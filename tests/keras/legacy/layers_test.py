@@ -42,10 +42,6 @@ def test_maxout_dense():
                input_shape=(3, 2))
 
 
-# https://github.com/deep-learning-tools/keras/issues/20
-@pytest.mark.skipif(K.backend() == 'mxnet',
-                    reason='MXNet backend does not support predict without compile.'
-                           'To be fixed.')
 @keras_test
 def test_merge():
     # test modes: 'sum', 'mul', 'concat', 'ave', 'cos', 'dot'.
