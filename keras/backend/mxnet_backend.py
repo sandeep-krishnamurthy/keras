@@ -1955,10 +1955,7 @@ def concatenate(tensors, axis=-1):
             axis %= rank
         else:
             axis = 0
-    """
-    if axis < 0:
-        axis += ndim(tensors[0])
-    """
+
     tensors = [t.symbol for t in tensors]
     return KerasSymbol(mx.sym.concat(*tensors, dim=axis))
 

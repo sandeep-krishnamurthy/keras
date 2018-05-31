@@ -443,6 +443,9 @@ def _weighted_masked_objective(fn):
             ndim = K.ndim(score_array)
             weight_ndim = K.ndim(weights)
             score_array = K.mean(score_array, axis=list(range(weight_ndim, ndim)))
+            # If sample_weights shape is like (100, ), we convert it to (100, 1).
+            # Because, MXNet treats the shape (100, ) as (100) leading to broadcast operator
+            # failures in below operations.
             if K.backend() == 'mxnet' and K.ndim(weights) == 1:
                 weights = K.reshape(weights, shape=(weights.shape[0], 1))
             score_array *= weights
