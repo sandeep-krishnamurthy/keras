@@ -20,6 +20,8 @@ from .utils.generic_utils import Progbar
 from . import backend as K
 from .engine.training_utils import standardize_input_data
 
+from keras.models import save_mxnet_model
+
 try:
     import requests
 except ImportError:
@@ -1232,3 +1234,60 @@ class LambdaCallback(Callback):
             self.on_train_end = on_train_end
         else:
             self.on_train_end = lambda logs: None
+
+
+class MXNetModelCheckpoint(ModelCheckpoint):
+    """Save the MXNet Model after every epoch. Saves both params and symbol file.
+
+       # Arguments
+           monitor: quantity to monitor.
+           verbose: verbosity mode, 0 or 1.
+           save_best_only: if `save_best_only=True`,
+               the latest best model according to
+               the quantity monitored will not be overwritten.
+           mode: one of {auto, min, max}.
+               If `save_best_only=True`, the decision
+               to overwrite the current save file is made
+               based on either the maximization or the
+               minimization of the monitored quantity. For `val_acc`,
+               this should be `max`, for `val_loss` this should
+               be `min`, etc. In `auto` mode, the direction is
+               automatically inferred from the name of the monitored quantity.
+           period: Interval (number of epochs) between checkpoints.
+       """
+    def __init__(self, mxnet_model_prefix, monitor='val_loss', verbose=0,
+                 save_best_only=False,
+                 mode='auto', period=1):
+        super(MXNetModelCheckpoint, self).__init__(filepath=None, monitor=monitor, verbose=verbose,
+                                                   save_best_only=save_best_only, save_weights_only=False,
+                                                   mode=mode, period=period)
+        self.mxnet_model_prefix = mxnet_model_prefix
+
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+        self.epochs_since_last_save += 1
+        if self.epochs_since_last_save >= self.period:
+            self.epochs_since_last_save = 0
+            if self.save_best_only:
+                current = logs.get(self.monitor)
+                if current is None:
+                    warnings.warn('Can save best model only with %s available, '
+                                  'skipping.' % (self.monitor), RuntimeWarning)
+                else:
+                    if self.monitor_op(current, self.best):
+                        if self.verbose > 0:
+                            print('\nEpoch %05d: %s improved from %0.5f to %0.5f,'
+                                  ' saving model to %s'
+                                  % (epoch + 1, self.monitor, self.best,
+                                     current, filepath))
+                        self.best = current
+                        save_mxnet_model(self.model, prefix=self.mxnet_model_prefix)
+                    else:
+                        if self.verbose > 0:
+                            print('\nEpoch %05d: %s did not improve from %0.5f' %
+                                  (epoch + 1, self.monitor, self.best))
+            else:
+                if self.verbose > 0:
+                    print('\nEpoch %05d: saving model to %s' % (epoch + 1, filepath))
+
+                save_mxnet_model(self.model, prefix='rim')
