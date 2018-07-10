@@ -1246,7 +1246,7 @@ class MXNetModelCheckpoint(ModelCheckpoint):
        If save_best_only is False, i.e., you want to save the MXNet model after each epoch, this callback saves the Model
        in the format '<prefix>-symbol.json' and '<prefix>-<epoch>.params'. Example: If you are running the training job
        for 2 epochs, you will have one symbol file - '<prefix>-symbol.json' and 2 params file, one each for the 2 epochs,
-       '<prefix>-0001.params' and '<prefix>-0002.params'
+       '<prefix>-0000.params' and '<prefix>-0001.params'
 
        # Arguments
            prefix: Prefix name of the saved MXNet Model (symbol and params) files.
