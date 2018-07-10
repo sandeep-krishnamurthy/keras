@@ -1251,7 +1251,7 @@ class MXNetModelCheckpoint(ModelCheckpoint):
        # Arguments
            prefix: Prefix name of the saved MXNet Model (symbol and params) files.
                    Model will be saved as '<prefix>-symbol.json' and '<prefix>-<epoch>.params'.
-           monitor: quantity to monitor.
+           monitor: quantity to monitor. Example: 'val_acc', 'val_loss'.
            verbose: verbosity mode, 0 or 1.
            save_best_only: if `save_best_only=True`,
                the latest best model according to
