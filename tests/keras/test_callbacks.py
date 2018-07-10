@@ -909,12 +909,8 @@ def tests_RemoteMonitorWithJsonPayload():
                   validation_data=(X_test, y_test), callbacks=cbks, epochs=1)
 
 
-@pytest.mark.skipif((K.backend() != 'mxnet'),
-                    reason='Supported for MXNet backend only.')
-@keras_test
-def test_MXNetModelCheckpoint():
+def mxnet_model_checkpoint_test_helper(monitor, save_best_only, mode, prefix='test', epochs=1):
     np.random.seed(1337)
-    prefix = 'test'
     (X_train, y_train), (X_test, y_test) = get_test_data(num_train=train_samples,
                                                          num_test=test_samples,
                                                          input_shape=(input_dim,),
@@ -922,11 +918,6 @@ def test_MXNetModelCheckpoint():
                                                          num_classes=num_classes)
     y_test = np_utils.to_categorical(y_test)
     y_train = np_utils.to_categorical(y_train)
-    # case 1
-    monitor = 'val_loss'
-    save_best_only = False
-    mode = 'auto'
-
     model = Sequential()
     model.add(Dense(num_hidden, input_dim=input_dim, activation='relu'))
     model.add(Dense(num_classes, activation='softmax'))
@@ -937,55 +928,58 @@ def test_MXNetModelCheckpoint():
     cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
                                            save_best_only=save_best_only, mode=mode)]
     model.fit(X_train, y_train, batch_size=batch_size,
-              validation_data=(X_test, y_test), callbacks=cbks, epochs=1)
+              validation_data=(X_test, y_test), callbacks=cbks, epochs=epochs)
+
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_mxnet_model_checkpoint_save_all_auto_mode():
+    mxnet_model_checkpoint_test_helper(monitor='val_loss', save_best_only=False, mode='auto')
     assert os.path.isfile('test-symbol.json')
     assert os.path.isfile('test-0000.params')
     os.remove('test-symbol.json')
     os.remove('test-0000.params')
 
-    # case 2
-    mode = 'min'
-    cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
-                                           save_best_only=save_best_only, mode=mode)]
-    model.fit(X_train, y_train, batch_size=batch_size,
-              validation_data=(X_test, y_test), callbacks=cbks, epochs=1)
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_mxnet_model_checkpoint_save_all_min_mode():
+    mxnet_model_checkpoint_test_helper(monitor='val_loss', save_best_only=False, mode='min')
     assert os.path.isfile('test-symbol.json')
     assert os.path.isfile('test-0000.params')
     os.remove('test-symbol.json')
     os.remove('test-0000.params')
 
-    # case 3
-    mode = 'max'
-    monitor = 'val_acc'
-    cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
-                                           save_best_only=save_best_only, mode=mode)]
-    model.fit(X_train, y_train, batch_size=batch_size,
-              validation_data=(X_test, y_test), callbacks=cbks, epochs=1)
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_mxnet_model_checkpoint_save_all_max_mode():
+    mxnet_model_checkpoint_test_helper(monitor='val_acc', save_best_only=False, mode='max')
     assert os.path.isfile('test-symbol.json')
     assert os.path.isfile('test-0000.params')
     os.remove('test-symbol.json')
     os.remove('test-0000.params')
 
-    # case 4
-    save_best_only = True
-    cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
-                                           save_best_only=save_best_only, mode=mode)]
-    model.fit(X_train, y_train, batch_size=batch_size,
-              validation_data=(X_test, y_test), callbacks=cbks, epochs=1)
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_mxnet_model_checkpoint_save_best_max_mode():
+    mxnet_model_checkpoint_test_helper(monitor='val_acc', save_best_only=True, mode='max')
     assert os.path.isfile('test-symbol.json')
     assert os.path.isfile('test-0000.params')
     os.remove('test-symbol.json')
     os.remove('test-0000.params')
 
-    # case 5
-    save_best_only = False
-    period = 1
-    mode = 'auto'
-    cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
-                                           save_best_only=save_best_only, mode=mode,
-                                           period=period)]
-    model.fit(X_train, y_train, batch_size=batch_size,
-              validation_data=(X_test, y_test), callbacks=cbks, epochs=2)
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_mxnet_model_checkpoint_save_all_auto_mode_multi_epoch():
+    mxnet_model_checkpoint_test_helper(monitor='val_acc', save_best_only=False, mode='auto', epochs=2)
     assert os.path.isfile('test-symbol.json')
     assert os.path.isfile('test-0000.params')
     assert os.path.isfile('test-0001.params')
