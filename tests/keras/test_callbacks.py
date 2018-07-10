@@ -968,7 +968,10 @@ def test_mxnet_model_checkpoint_save_all_max_mode():
                     reason='Supported for MXNet backend only.')
 @keras_test
 def test_mxnet_model_checkpoint_save_best_max_mode():
-    mxnet_model_checkpoint_test_helper(monitor='val_acc', save_best_only=True, mode='max')
+    mxnet_model_checkpoint_test_helper(monitor='val_acc', save_best_only=True, mode='max', epochs=2)
+    # Since we say save_best_only, we need to have only one model file with test-0000.params and test-symbol.json
+    assert not os.path.isfile('test-0001.params')
+
     assert os.path.isfile('test-symbol.json')
     assert os.path.isfile('test-0000.params')
     os.remove('test-symbol.json')
