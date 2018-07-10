@@ -979,7 +979,7 @@ def test_MXNetModelCheckpoint():
 
     # case 5
     save_best_only = False
-    period = 2
+    period = 1
     mode = 'auto'
     cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
                                            save_best_only=save_best_only, mode=mode,

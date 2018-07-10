@@ -20,7 +20,7 @@ from .utils.generic_utils import Progbar
 from . import backend as K
 from .engine.training_utils import standardize_input_data
 
-from keras.models import save_mxnet_model
+from .engine.saving import save_mxnet_model
 
 try:
     import requests
