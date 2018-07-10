@@ -981,8 +981,7 @@ def test_MXNetModelCheckpoint():
     save_best_only = False
     period = 2
     mode = 'auto'
-    filepath = 'checkpoint.{epoch:02d}.h5'
-    cbks = [callbacks.MXNetModelCheckpoint(filepath, monitor=monitor,
+    cbks = [callbacks.MXNetModelCheckpoint(prefix, monitor=monitor,
                                            save_best_only=save_best_only, mode=mode,
                                            period=period)]
     model.fit(X_train, y_train, batch_size=batch_size,
@@ -992,7 +991,7 @@ def test_MXNetModelCheckpoint():
     assert os.path.isfile('test-0001.params')
     os.remove('test-symbol.json')
     os.remove('test-0000.params')
-    os.remove('test-0000.params')
+    os.remove('test-0001.params')
 
 
 if __name__ == '__main__':
