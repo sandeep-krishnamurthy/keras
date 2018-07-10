@@ -1237,9 +1237,19 @@ class LambdaCallback(Callback):
 
 
 class MXNetModelCheckpoint(ModelCheckpoint):
-    """Save the MXNet Model after every epoch. Saves both params and symbol file.
+    """Save the MXNet Model after every epoch. Saves both params and symbol file. Saves in the current directory.
+
+       If save_best_only is True, saves the MXNet model in the format '<prefix>-symbol.json' and '<prefix>-0000.params'.
+       i.e., uses 0000 as placeholder for the epoch. You will have only one best model at the end of training.
+
+       If save_best_only is False, i.e., you want to save the MXNet model after each epoch, this callback saves the Model
+       in the format '<prefix>-symbol.json' and '<prefix>-<epoch>.params'. Example: If you are running the training job
+       for 2 epochs, you will have one symbol file - '<prefix>-symbol.json' and 2 params file, one each for the 2 epochs,
+       '<prefix>-0001.params' and '<prefix>-0002.params'
 
        # Arguments
+           prefix: Prefix name of the saved MXNet Model (symbol and params) files.
+                   Model will be saved as '<prefix>-symbol.json' and '<prefix>-<epoch>.params'.
            monitor: quantity to monitor.
            verbose: verbosity mode, 0 or 1.
            save_best_only: if `save_best_only=True`,
@@ -1255,13 +1265,13 @@ class MXNetModelCheckpoint(ModelCheckpoint):
                automatically inferred from the name of the monitored quantity.
            period: Interval (number of epochs) between checkpoints.
        """
-    def __init__(self, mxnet_model_prefix, monitor='val_loss', verbose=0,
+    def __init__(self, prefix, monitor='val_loss', verbose=0,
                  save_best_only=False,
                  mode='auto', period=1):
         super(MXNetModelCheckpoint, self).__init__(filepath=None, monitor=monitor, verbose=verbose,
                                                    save_best_only=save_best_only, save_weights_only=False,
                                                    mode=mode, period=period)
-        self.mxnet_model_prefix = mxnet_model_prefix
+        self.prefix = prefix
 
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
@@ -1269,25 +1279,27 @@ class MXNetModelCheckpoint(ModelCheckpoint):
         if self.epochs_since_last_save >= self.period:
             self.epochs_since_last_save = 0
             if self.save_best_only:
+                # We use epoch=0 for saving the best model. This will replace previous best model.
                 current = logs.get(self.monitor)
                 if current is None:
                     warnings.warn('Can save best model only with %s available, '
-                                  'skipping.' % (self.monitor), RuntimeWarning)
+                                  'skipping.' % self.monitor, RuntimeWarning)
                 else:
                     if self.monitor_op(current, self.best):
                         if self.verbose > 0:
                             print('\nEpoch %05d: %s improved from %0.5f to %0.5f,'
-                                  ' saving model to %s'
+                                  ' saving the MXNet model.'
                                   % (epoch + 1, self.monitor, self.best,
-                                     current, filepath))
+                                     current))
                         self.best = current
-                        save_mxnet_model(self.model, prefix=self.mxnet_model_prefix)
+                        save_mxnet_model(self.model, prefix=self.prefix)
                     else:
                         if self.verbose > 0:
                             print('\nEpoch %05d: %s did not improve from %0.5f' %
                                   (epoch + 1, self.monitor, self.best))
             else:
+                # User want to save model after each epoch. Hence, using the `epoch`.
                 if self.verbose > 0:
-                    print('\nEpoch %05d: saving model to %s' % (epoch + 1, filepath))
+                    print('\nEpoch %05d: saving the MXNet model.' % (epoch + 1))
 
-                save_mxnet_model(self.model, prefix='rim')
+                save_mxnet_model(self.model, prefix=self.prefix, epoch=epoch)
