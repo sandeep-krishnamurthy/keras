@@ -1,0 +1,41 @@
++version: 0.2
++
++phases:
++  install:
++    commands:
++      echo $CODEBUILD_SOURCE_VERSION;
++      PRID=$(echo $CODEBUILD_SOURCE_VERSION | sed "s/pr/pull/g");
++      echo "Checking out $PRID";
++      git fetch origin $PRID/head:pr_test;
++      git checkout pr_test;
++      echo "Installing MXNet";
++      apt-get update;
++      apt-get install -y curl libgfortran3;
++      pip install --upgrade pip;
++      pip install -U mxnet;
++      apt-get install libhdf5-dev;
++      pip install h5py;
++      pip install -U h5py;
++      pip install -U nose;
++      pip install -U pillow;
++      echo "Installing Tensorflow";
++      pip install -U tensorflow;
++      echo "Installing Theano";
++      pip install -U theano;
++      apt-get install -y openmpi-bin;
++      echo "Installing Keras Test Dependencies";
++      pip install -U pytest;
++      pip install -U pytest-pep8;
++      pip install -U pytest-xdist;
++      pip install -U pytest-cov;
++      pip install -e ./[tests];
++      pip install -U keras_applications;
++      pip install -U keras_preprocessing;
++  build:
++    commands:
++      echo "Running Keras Unit Tests and Integration Tests for all the backends";
++      py.test tests/ --ignore=tests/keras/utils/;tests/keras/wrappers/;
++      py.test tests/keras/utils/ --ignore=tests/keras/wrappers/;
++      pytest tests/keras/wrappers/;
++      echo "Running PEP tests";
++      py.test --pep8 -m pep8 -n0; 
