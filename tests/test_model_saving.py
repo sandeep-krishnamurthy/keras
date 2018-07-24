@@ -859,5 +859,46 @@ def test_sequential_mxnet_model_saving_no_compile():
         save_mxnet_model(model, prefix='test', epoch=0)
 
 
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_sequential_get_mxnet_model_info():
+    model = Sequential()
+    model.add(Dense(2, input_shape=(3,)))
+    model.add(RepeatVector(3))
+    model.add(TimeDistributed(Dense(3)))
+    model.compile(loss=losses.MSE,
+                  optimizer=optimizers.RMSprop(lr=0.0001),
+                  metrics=[metrics.categorical_accuracy],
+                  sample_weight_mode='temporal')
+    x = np.random.random((1, 3))
+    y = np.random.random((1, 3, 3))
+    model.train_on_batch(x, y)
+
+    data_names, data_shapes = K.get_mxnet_model_info(model)
+
+    # Only one input
+    assert len(data_names) == 1
+    # Example data_names = ['/dense_8_input1']
+    assert data_names[0].startswith('/dense_')
+
+    # Example data_shape = [DataDesc[/dense_8_input1,(1, 3),float32,NCHW]]
+    assert len(data_shapes) == 1
+    assert data_shapes[0].name == data_names[0]
+    assert data_shapes[0].shape == (1, 3) # In this example, we are passing x as input with shape (1,3)
+
+
+@pytest.mark.skipif((K.backend() != 'mxnet'),
+                    reason='Supported for MXNet backend only.')
+@keras_test
+def test_sequential_get_mxnet_model_info_no_compile():
+    model = Sequential()
+    model.add(Dense(2, input_shape=(3,)))
+    model.add(RepeatVector(3))
+    model.add(TimeDistributed(Dense(3)))
+    with pytest.raises(AssertionError):
+        K.get_mxnet_model_info(model)
+
+
 if __name__ == '__main__':
     pytest.main([__file__])

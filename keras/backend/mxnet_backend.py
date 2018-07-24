@@ -3076,10 +3076,6 @@ def conv1d(x, kernel, strides=1, padding='valid',
         # X original shape (batch, length, input_dim)
         # Add a dimension to X to Make it (batch, length, 1, input_dim)
         x = expand_dims(x, axis=2)
-        # Add dimension to kernel
-        # for channels last: kernel_shape = kernel_size + (input_dim, filters)
-        # it will become: (kernel_size, 1, input_dim, filters)
-        kernel = expand_dims(kernel, axis=1)
         # update x._keras_shape
         if shape is not None:
             x._keras_shape = (shape[0], shape[1], 1, shape[2])
@@ -3087,16 +3083,15 @@ def conv1d(x, kernel, strides=1, padding='valid',
         # X original shape (batch, input_dim, length)
         # Add a dimension to X to make it (batch, input_dim, length, 1)
         x = expand_dims(x, axis=3)
-        # Add dimension to kernel
-        # for channels first: kernel_shape = (filters, input_dim) + kernel_size
-        # it will become: (filters, input_dim, kernel_size, 1)
-        kernel = expand_dims(kernel, axis=3)
         if shape is not None:
             x._keras_shape = (shape[0], shape[1], shape[2], 1)
 
     # update dilation rate, strides
     dilation_rate = (dilation_rate, 1)
     strides = (strides, 1)
+    # add dim to kernel (always same format independently of data_format)
+    # i.e. (rows, 1, input_depth, depth)
+    kernel = expand_dims(kernel, axis=1)
 
     output = _convnd(x, kernel, name='conv1d', strides=strides, filter_dilation=dilation_rate,
                      padding_mode=padding, data_format=data_format)
@@ -4565,6 +4560,40 @@ def _poolnd(x, name, pool_size, strides, padding_mode='valid',
     # Handle original Data Format
     result = _postprocess_convnd_output(KerasSymbol(mx_out), data_format)
     return result
+
+
+def get_mxnet_model_info(model):
+    """Get native MXNet model details for given Keras Model.
+    `data_names` and `data_shapes` are returned that can be used to bind the model in MXNet Module.
+    `data_names` and `data_shapes` represents input layer name and shape.
+    You can change the first dimension of data_shapes to match batch size for inference.
+
+    Note: You should use `save_mxnet_model()` API for saving the model in native MXNet model format.
+
+    # Arguments
+        model: Keras model instance from which to extract MXNet model details.
+
+    # Returns
+        data_names, data_shapes
+
+    # Raises
+        AssertionError if Model is not compiled.
+    """
+    assert model is not None, 'MXNet Backend: Invalid state. Model cannot be None.'
+
+    # Underlying MXNet model for Inference in native MXNet engine.
+    symbol = model._pred_mxnet_symbol
+    module = model._module
+
+    assert symbol is not None, 'MXNet Backend: Invalid state. MXNet Symbol cannot be None.'
+    assert module is not None, 'MXNet Backend: Invalid state. MXNet Module cannot be None.'
+
+    # Get Module Input data_names and data_shapes.
+    # This info will be useful for users to easily bind the exported model in MXNet.
+    pred_module = module._buckets['pred']
+    data_names = pred_module.data_names
+    data_shapes = pred_module.data_shapes
+    return data_names, data_shapes
 
 
 def get_model():
