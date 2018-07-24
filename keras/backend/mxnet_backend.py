@@ -3076,6 +3076,10 @@ def conv1d(x, kernel, strides=1, padding='valid',
         # X original shape (batch, length, input_dim)
         # Add a dimension to X to Make it (batch, length, 1, input_dim)
         x = expand_dims(x, axis=2)
+        # Add dimension to kernel
+        # for channels last: kernel_shape = kernel_size + (input_dim, filters)
+        # it will become: (kernel_size, 1, input_dim, filters)
+        kernel = expand_dims(kernel, axis=1)
         # update x._keras_shape
         if shape is not None:
             x._keras_shape = (shape[0], shape[1], 1, shape[2])
@@ -3083,15 +3087,16 @@ def conv1d(x, kernel, strides=1, padding='valid',
         # X original shape (batch, input_dim, length)
         # Add a dimension to X to make it (batch, input_dim, length, 1)
         x = expand_dims(x, axis=3)
+        # Add dimension to kernel
+        # for channels first: kernel_shape = (filters, input_dim) + kernel_size
+        # it will become: (filters, input_dim, kernel_size, 1)
+        kernel = expand_dims(kernel, axis=3)
         if shape is not None:
             x._keras_shape = (shape[0], shape[1], shape[2], 1)
 
     # update dilation rate, strides
     dilation_rate = (dilation_rate, 1)
     strides = (strides, 1)
-    # add dim to kernel (always same format independently of data_format)
-    # i.e. (rows, 1, input_depth, depth)
-    kernel = expand_dims(kernel, axis=1)
 
     output = _convnd(x, kernel, name='conv1d', strides=strides, filter_dilation=dilation_rate,
                      padding_mode=padding, data_format=data_format)
