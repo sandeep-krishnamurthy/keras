@@ -3945,7 +3945,9 @@ class KerasSymbol(object):
         for i in in_slice:
             if isinstance(i, int):
                 # Want to slice the complete axis
-                if i == -1:
+                if i < -1:
+                    raise NotImplementedError('MXNet Backend: Does not support slicing with < -1 indexing. Given - ', i)
+                elif i == -1:
                     begin.append(-1)
                     end.append(None)
                     slice_axis = True
