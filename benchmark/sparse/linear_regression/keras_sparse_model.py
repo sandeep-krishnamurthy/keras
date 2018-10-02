@@ -20,8 +20,8 @@ def run_benchmark(train_data, train_label, eval_data, eval_label, batch_size, ep
 
     _validate_backend()
 
-    inputs = Input(batch_shape=(None, train_data.shape[1]), dtype='float32', sparse=True)
-    predictions = Dense(units=1, activation='linear', kernel_initializer='normal')(inputs)
+    inputs = Input(batch_shape=(None, train_data.shape[1]), dtype='float32', sparse=False)
+    predictions = Dense(units=1, activation='linear', kernel_initializer='normal', sparse=False)(inputs)
     model = Model(inputs=inputs, outputs=predictions)
     model.summary()
 

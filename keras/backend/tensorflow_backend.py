@@ -359,7 +359,7 @@ def to_dense(tensor):
 name_scope = tf.name_scope
 
 
-def variable(value, dtype=None, name=None, constraint=None):
+def variable(value, dtype=None, name=None, constraint=None, sparse=False):
     """Instantiates a variable and returns it.
 
     # Arguments

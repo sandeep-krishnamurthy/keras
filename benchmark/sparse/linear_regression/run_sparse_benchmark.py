@@ -14,6 +14,13 @@ from scipy import sparse
 from keras import backend as K
 from keras.utils.data_utils import prepare_sliced_sparse_data
 
+import os
+os.environ['MXNET_INFER_STORAGE_TYPE_VERBOSE_LOGGING'] = "1"
+os.environ['MXNET_EXEC_BULK_EXEC_TRAIN'] = "0"
+from mxnet import profiler
+profiler.set_config(profile_all=True, aggregate_stats=True, filename='profile_output_K_MX_sparse_2.json')
+#profiler.set_config(profile_all=True, aggregate_stats=True, filename='profile_output_MX_sparse.json')
+
 
 def invoke_benchmark(batch_size, epochs):
     feature_dimension = 1000
@@ -28,15 +35,28 @@ def invoke_benchmark(batch_size, epochs):
     eval_data = prepare_sliced_sparse_data(eval_data, batch_size)
     eval_label = prepare_sliced_sparse_data(eval_label, batch_size)
 
+    t_data = train_data.asnumpy()
+    e_data = eval_data.asnumpy()
+    
+    # Ask the profiler to start recording
+    #profiler.set_state('run')
+
     print("Running Keras benchmark script on sparse data")
     print("Using Backend: ", K.backend())
-    keras_sparse_model.run_benchmark(train_data=sparse.csr_matrix(train_data.asnumpy()),
-                                     train_label=sparse.csr_matrix(train_label.asnumpy()),
-                                     eval_data=sparse.csr_matrix(eval_data.asnumpy()),
-                                     eval_label=sparse.csr_matrix(eval_label.asnumpy()),
+    keras_sparse_model.run_benchmark(train_data=t_data,#sparse.csr_matrix(t_data),
+                                     #train_label=sparse.csr_matrix(train_label.asnumpy()),
+                                     train_label=train_label.asnumpy(),
+                                     eval_data=e_data, #sparse.csr_matrix(e_data),
+                                     #eval_label=sparse.csr_matrix(eval_label.asnumpy()),
+                                     eval_label=eval_label.asnumpy(),
                                      batch_size=batch_size,
                                      epochs=epochs,
                                      start=time.time())
+    
+    #profiler.set_state('stop')
+    """
+    # Ask the profiler to start recording
+    profiler.set_state('run')
 
     print("Running MXNet benchmark script on sparse data")
     mxnet_sparse_model.run_benchmark(train_data=train_data,
@@ -46,9 +66,11 @@ def invoke_benchmark(batch_size, epochs):
                                      batch_size=batch_size,
                                      epochs=epochs,
                                      start=time.time())
-
+    profiler.set_state('stop')
+    """
 
 if __name__ == '__main__':
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch", default=128,
                         help="Batch of data to be processed for training")
@@ -57,3 +79,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     invoke_benchmark(int(args.batch), int(args.epochs))
+    """
+    invoke_benchmark(128, 10)
