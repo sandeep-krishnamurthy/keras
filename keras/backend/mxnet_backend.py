@@ -213,7 +213,7 @@ def to_dense(tensor):
         return tensor
 
 
-def variable(value, dtype=None, name=None, constraint=None):
+def variable(value, dtype=None, name=None, constraint=None, sparse=False):
     """Instantiates a variable and returns it.
 
     # Arguments
@@ -259,6 +259,14 @@ def variable(value, dtype=None, name=None, constraint=None):
         v = mx.nd.sparse.csr_matrix((value.data, value.indices, value.indptr), shape=value.shape)
         name = _prepare_name(name, 'variable')
         ret = _keras_variable(name, v.shape, v.dtype, 'csr', is_vector)
+        ret._keras_shape = value.shape
+        ret._uses_learning_phase = False
+        ret.bind(v)
+        return ret
+    elif sparse:
+        v = mx.ndarray.sparse.cast_storage(mx.nd.array(value), 'row_sparse')
+        name = _prepare_name(name, 'variable')
+        ret = _keras_variable(name, v.shape, v.dtype, 'row_sparse', is_vector)
         ret._keras_shape = value.shape
         ret._uses_learning_phase = False
         ret.bind(v)
@@ -1040,6 +1048,14 @@ def dot(x, y):
         (2, 4, 5)
     ```
     """
+    if is_sparse(x):
+        if ndim(y) > 2:
+            # Output of this is sparse
+            return KerasSymbol(mx.sym.sparse.dot(x.symbol, y.symbol, transpose_b=True))
+        else:
+            # Output of this is dense
+            return KerasSymbol(mx.sym.sparse.dot(x.symbol, y.symbol))
+
     if ndim(y) > 2:
         axis = list(range(ndim(y)))
         axis = [axis.pop(-2)] + axis
@@ -3991,6 +4007,8 @@ def random_normal(shape, mean=0.0, stddev=1.0, dtype=None, seed=None):
     else:
         mx.random.seed(int(10e6))
     sym = mx.sym.random.normal(shape=shape, loc=mean, scale=stddev, dtype=dtype)
+    # To cast storage using symbolic cast operator.
+
     return KerasSymbol(sym)
 
 
@@ -5294,7 +5312,15 @@ def get_model():
 
             trainable_weights = set([x.name for x in self.trainable_weights])
             self._fixed_weights = [x for x in self._arg_names if x not in trainable_weights]
-            self._args = {x: bind_values[x] for x in self._arg_names if x in bind_values}
+            self._args = {}
+            for x in self._arg_names:
+                if x in bind_values:
+                    if is_sparse(x):
+                        self._args[x] = mx.ndarray.sparse.cast_storage(mx.nd.array(bind_values[x]), 'row_sparse')
+                    else:
+                        self._args[x] = bind_values[x]
+
+            #self._args = {x: bind_values[x] for x in self._arg_names if x in bind_values}
             self._auxs = {x: bind_values[x] for x in self._aux_names if x in bind_values}
             self._weights_dirty = False
 
@@ -5323,6 +5349,7 @@ def get_model():
             elif self._num_data == len(inputs) - 1:
                 inputs = inputs[:-1]
             assert self._num_data == len(inputs) or self._num_data + self._num_label == len(inputs)
+            # Should this be CSR NDArray?
             data = [mx.nd.array(x, dtype=s.dtype)
                     for (s, x) in zip(self.inputs, inputs[:self._num_data])]
             data_shapes = [mx.io.DataDesc(s.name, arr.shape, dtype=s.dtype)
