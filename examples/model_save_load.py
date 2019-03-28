@@ -25,10 +25,14 @@ y = np.random.random((1, 3, 3))
 model.train_on_batch(x, y)
 
 out = model.predict(x)
+print("First output - ", out)
 _, fname = tempfile.mkstemp('.h5')
 save_model(model, fname)
 
 new_model = load_model(fname, context="eia")
+print("Loaded new model - ", new_model)
+print("Context is - ", new_model._context)
 os.remove(fname)
 
 out2 = new_model.predict(x)
+print("Second output - ", out2)
