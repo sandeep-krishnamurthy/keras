@@ -5421,6 +5421,7 @@ def get_model():
             if not self._module.binded:
                 # allow prediction without compiling the model using different binding
                 if phase == 'pred' and (self._context[0] == "eia" or not self.compiled):
+                    self._module._context = [mx.eia()]
                     self._module.bind(data_shapes=data_shapes, label_shapes=None,
                                       for_training=False)
                     self._set_weights()
