@@ -5302,12 +5302,12 @@ class Context:
         self.scope_ctx = _get_mxnet_context(ctx)
 
     def __enter__(self):
-        global _CURRENT_CTX
-        _CURRENT_CTX = self.scope_ctx
+        global _CURRENT_SCOPE_CTX
+        _CURRENT_SCOPE_CTX = self.scope_ctx
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        global _CURRENT_CTX
-        _CURRENT_CTX = None
+        global _CURRENT_SCOPE_CTX
+        _CURRENT_SCOPE_CTX = None
 
 
 def get_model():
