@@ -2,10 +2,6 @@
 from __future__ import print_function
 
 import warnings
-from collections import defaultdict
-from functools import wraps
-from numbers import Number
-from subprocess import CalledProcessError
 
 import mxnet as mx
 import numpy as np
@@ -21,6 +17,8 @@ _LEARNING_PHASE = 1
 _MODEL = None
 _REENTRY = False
 NAME_SCOPE_STACK = []
+
+_CURRENT_SCOPE_CTX = None
 
 py_all = all
 
@@ -5227,6 +5225,88 @@ def get_num_gpus():
     return 0
 
 
+def _get_mxnet_context(context):
+    # If we are currently under a global scope context,
+    # then it overrides all other local context parameters.
+    global _CURRENT_SCOPE_CTX
+    # Note: _CURRENT_SCOPE_CTX will be None if not in scope.
+    if _CURRENT_SCOPE_CTX:
+        return _CURRENT_SCOPE_CTX
+
+    mxnet_context = []
+
+    if context is None:
+        # If user does not provide any context, if GPUs are detected, by default it runs on first available
+        # GPU device. If not GPUs are detected, then it falls back to CPU.
+        try:
+            gpus = mx.test_utils.list_gpus()
+        except CalledProcessError:
+            gpus = []
+        if gpus and len(gpus) > 0:
+            mxnet_context.append(mx.gpu(gpus[0]))
+        else:
+            mxnet_context.append(mx.current_context())
+    elif isinstance(context, Number):
+        # If user provides number of GPUs to use, set context accordingly.
+        if context == 0:
+            mxnet_context.append(mx.current_context())
+        else:
+            for gpu_id in range(0, context):
+                mxnet_context.append(mx.gpu(gpu_id))
+    elif isinstance(context, str):
+        # If user provides GPU context in the format - "gpu(0)" or "eia" i.e., string.
+        if context.lower() == "eia":
+            mxnet_context.append("eia")
+        else:
+            mxnet_context.append(context)
+    else:
+        # If user has provided a list.
+        # List can be:
+        #   1. List of GPU IDs - [0, 1, 2, 3]
+        #   2. List of GPU context strings - ["gpu(0)", "gpu(1)"]
+        for context_name in context:
+            if isinstance(context_name, Number):
+                mxnet_context.append(mx.gpu(context_name))
+            elif context_name.startswith('cpu'):
+                mxnet_context.append(mx.cpu())
+            elif context_name.startswith('gpu('):
+                index = int(context_name[4:-1])
+                mxnet_context.append(mx.gpu(index))
+            elif context_name.startswith('gpu'):
+                index = int(context_name[3:])
+                mxnet_context.append(mx.gpu(index))
+
+    return mxnet_context
+
+
+class Context:
+    """Scope for managing the context/runtime.
+
+    # Example
+
+    ```python
+    from keras import backend as K
+    from keras.models import load_model
+
+    with K.Context("EIA"):
+        model = load_model('imagenet_vgg16.h5')
+
+    prediction = model.predict(input_data)
+    ```
+
+    """
+    def __init__(self, ctx):
+        self.scope_ctx = _get_mxnet_context(ctx)
+
+    def __enter__(self):
+        global _CURRENT_CTX
+        _CURRENT_CTX = self.scope_ctx
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        global _CURRENT_CTX
+        _CURRENT_CTX = None
+
+
 def get_model():
     """Prepares Model class that can be used for training a Keras model with MXNet backend.
     Inherits and extends keras.engine.Model class.
@@ -5258,7 +5338,7 @@ def get_model():
             if 'kvstore' not in kwargs:
                 kwargs['kvstore'] = 'device'
 
-            self._context = self.get_mxnet_context(kwargs['context'])
+            self._context = _get_mxnet_context(kwargs['context'])
             self._kvstore = kwargs['kvstore']
 
             self._data_names = None
@@ -5373,7 +5453,7 @@ def get_model():
             self._weights_dirty = False
 
             if self._context and self._context[0] == "eia":
-                # Only Prediction is Supported with EI Context
+                # Only Prediction is Supported with EIA Context
                 self._module = mx.mod.Module(self._pred_mxnet_symbol, data_names=self._data_names,
                                              label_names=self._label_names, context=mx.eia(),
                                              fixed_param_names=self._fixed_weights)
@@ -5507,7 +5587,8 @@ def get_model():
 
             # If context is EIA this should not be supported
             if self._context and self._context[0] == "eia":
-                raise RuntimeError('MXNet Backend: Model training is not supported with MXNet EIA context. Use CPU/GPU.')
+                raise RuntimeError('MXNet Backend: Model training is not supported with MXNet EIA context.'
+                                   'Use CPU/GPU.')
 
             self.train_function = train_function
 
@@ -5598,53 +5679,6 @@ def get_model():
                     context=self._context,
                     fixed_param_names=self._fixed_weights)
 
-        @staticmethod
-        def get_mxnet_context(context):
-            mxnet_context = []
-
-            if context is None:
-                # If user does not provide any context, if GPUs are detected, by default it runs on first available
-                # GPU device. If not GPUs are detected, then it falls back to CPU.
-                try:
-                    gpus = mx.test_utils.list_gpus()
-                except CalledProcessError:
-                    gpus = []
-                if gpus and len(gpus) > 0:
-                    mxnet_context.append(mx.gpu(gpus[0]))
-                else:
-                    mxnet_context.append(mx.current_context())
-            elif isinstance(context, Number):
-                # If user provides number of GPUs to use, set context accordingly.
-                if context == 0:
-                    mxnet_context.append(mx.current_context())
-                else:
-                    for gpu_id in range(0, context):
-                        mxnet_context.append(mx.gpu(gpu_id))
-            elif isinstance(context, str):
-                # If user provides GPU context in the format - "gpu(0)" or "ei" i.e., string.
-                if context == "eia":
-                    mxnet_context.append("eia")
-                else:
-                    mxnet_context.append(context)
-            else:
-                # If user has provided a list.
-                # List can be:
-                #   1. List of GPU IDs - [0, 1, 2, 3]
-                #   2. List of GPU context strings - ["gpu(0)", "gpu(1)"]
-                for context_name in context:
-                    if isinstance(context_name, Number):
-                        mxnet_context.append(mx.gpu(context_name))
-                    elif context_name.startswith('cpu'):
-                        mxnet_context.append(mx.cpu())
-                    elif context_name.startswith('gpu('):
-                        index = int(context_name[4:-1])
-                        mxnet_context.append(mx.gpu(index))
-                    elif context_name.startswith('gpu'):
-                        index = int(context_name[3:])
-                        mxnet_context.append(mx.gpu(index))
-
-            return mxnet_context
-
         def set_mxnet_context(self, context):
             """Sets the mxnet context for the current Model.
 
@@ -5666,7 +5700,7 @@ def get_model():
                                      'call `multi_gpu_model` with `gpus >= 2`. '
                                      'Received: `gpus=%d`' % context)
 
-            self._context = self.get_mxnet_context(context)
+            self._context = _get_mxnet_context(context)
 
     return Model
 
