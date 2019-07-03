@@ -25,6 +25,8 @@ def has_eia():
                            'with MXNet backend only. We need to have EIA '
                            'to run Keras predictions on EIA tests.')
 def test_prediction_with_eia():
+    import mxnet as mx
+
     # 1. Download and save ImageNet Pre-Trained VGG-16
     model = VGG16(weights='imagenet', input_shape=(224, 224, 3))
     model.save("imagenet_vgg16.h5")
@@ -32,6 +34,10 @@ def test_prediction_with_eia():
     # 2. Load the Model in EIA Context
     with K.Context("eia"):
         model = keras.models.load_model("imagenet_vgg16.h5")
+
+    # Verify Model is loaded in EIA context
+    assert model._context
+    assert model._context[0] == mx.eia()
 
     # 3. Prepare inputs for prediction
     dummy_image1 = np.random.randint(low=0, high=255, size=(224, 224, 3))

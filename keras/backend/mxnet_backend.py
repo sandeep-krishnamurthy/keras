@@ -5254,11 +5254,14 @@ def _get_mxnet_context(context):
             for gpu_id in range(0, context):
                 mxnet_context.append(mx.gpu(gpu_id))
     elif isinstance(context, str):
-        # If user provides GPU context in the format - "gpu(0)" or "eia" i.e., string.
-        if context.lower() == "eia":
-            mxnet_context.append("eia")
+        # If user provides GPU context in the format - "gpu(0)" or "eia" or "eia(0)" i.e., string.
+        if context.lower().startswith('eia('):
+            index = int(context[4:-1])
+            mxnet_context.append(mx.eia(index))
+        elif context.lower() == 'eia':
+            mxnet_context.append(mx.eia())
         else:
-            mxnet_context.append(context)
+            mxnet_context.append(context.lower())
     else:
         # If user has provided a list.
         # List can be:
@@ -5452,10 +5455,10 @@ def get_model():
             self._auxs = {x: bind_values[x] for x in self._aux_names if x in bind_values}
             self._weights_dirty = False
 
-            if self._context and self._context[0] == "eia":
+            if self._context and hasattr(self._context[0], 'device_type') and self._context[0].device_type == 'eia':
                 # Only Prediction is Supported with EIA Context
                 self._module = mx.mod.Module(self._pred_mxnet_symbol, data_names=self._data_names,
-                                             label_names=self._label_names, context=mx.eia(),
+                                             label_names=self._label_names, context=self._context[0],
                                              fixed_param_names=self._fixed_weights)
             else:
                 # set the module
@@ -5500,8 +5503,8 @@ def get_model():
 
             if not self._module.binded:
                 # allow prediction without compiling the model using different binding
-                if phase == 'pred' and (self._context[0] == "eia" or not self.compiled):
-                    self._module._context = [mx.eia()]
+                if phase == 'pred' and ((hasattr(self._context[0], 'device_type') and
+                                        self._context[0].device_type == 'eia') or not self.compiled):
                     self._module.bind(data_shapes=data_shapes, label_shapes=None,
                                       for_training=False)
                     self._set_weights()
@@ -5586,7 +5589,7 @@ def get_model():
                 return [x.asnumpy().mean() for x in outs]
 
             # If context is EIA this should not be supported
-            if self._context and self._context[0] == "eia":
+            if self._context and hasattr(self._context[0], 'device_type') and self._context[0].device_type == 'eia':
                 raise RuntimeError('MXNet Backend: Model training is not supported with MXNet EIA context.'
                                    'Use CPU/GPU.')
 
@@ -5607,7 +5610,7 @@ def get_model():
                 return [x.asnumpy().mean() for x in outs]
 
             # If context is EIA this should not be supported
-            if self._context and self._context[0] == "eia":
+            if self._context and hasattr(self._context[0], 'device_type') and self._context[0].device_type == 'eia':
                 raise RuntimeError(
                     'MXNet Backend: Model Testing is not supported with MXNet EIA context. Use CPU/GPU.')
             self.test_function = test_function
@@ -5663,10 +5666,10 @@ def get_model():
             self._weights_dirty = False
 
             # set module for prediction only
-            if self._context and self._context[0] == "eia":
+            if self._context and hasattr(self._context[0], 'device_type') and self._context[0].device_type == 'eia':
                 # Only Prediction is Supported with EI Context
                 self._module = mx.mod.Module(self._pred_mxnet_symbol, data_names=self._data_names,
-                                             label_names=self._label_names, context=mx.eia(),
+                                             label_names=self._label_names, context=self._context[0],
                                              fixed_param_names=self._fixed_weights)
             else:
                 def sym_gen(phase):
@@ -5692,7 +5695,7 @@ def get_model():
                                      'call `multi_gpu_model` with `len(gpus) >= 2`. '
                                      'Received: `gpus=%s`' % context)
             elif isinstance(context, str):
-                if context != "eia":
+                if not context.lower().startswith('eia'):
                     raise ValueError('MXNet Backend: Invalid context provided - %s' % context)
             else:
                 if context <= 1:
