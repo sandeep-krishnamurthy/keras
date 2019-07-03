@@ -248,7 +248,7 @@ def _serialize_model(model, f, include_optimizer=True):
                     optimizer_weights_group[name] = val
 
 
-def _deserialize_model(f, custom_objects=None, compile=True, context=None):
+def _deserialize_model(f, custom_objects=None, compile=True):
     """De-serializes a model serialized via _serialize_model
 
     # Arguments
@@ -258,7 +258,6 @@ def _deserialize_model(f, custom_objects=None, compile=True, context=None):
             considered during deserialization.
         compile: Boolean, whether to compile the model
             after loading.
-        context:
 
     # Returns
         A Keras model instance. If an optimizer was found
@@ -300,14 +299,7 @@ def _deserialize_model(f, custom_objects=None, compile=True, context=None):
     if model_config is None:
         raise ValueError('No model found in config.')
     model_config = json.loads(model_config.decode('utf-8'))
-
     model = model_from_config(model_config, custom_objects=custom_objects)
-
-    # Set Model Context, if provided.
-    # Currently, supported for MXNet backend.
-    if context is not None and K.backend() == "mxnet":
-        model.set_mxnet_context(context)
-
     model_weights_group = f['model_weights']
 
     if 'keras_version' in model_weights_group:
@@ -470,7 +462,7 @@ def save_model(model, filepath, overwrite=True, include_optimizer=True):
             f.close()
 
 
-def load_model(filepath, custom_objects=None, compile=True, context=None):
+def load_model(filepath, custom_objects=None, compile=True):
     """Loads a model saved via `save_model`.
 
     # Arguments
@@ -482,10 +474,6 @@ def load_model(filepath, custom_objects=None, compile=True, context=None):
             considered during deserialization.
         compile: Boolean, whether to compile the model
             after loading.
-        context: Context to load the model. Supported with MXNet backend only.
-            - context = "ei" => For loading model with AWS Elastic Inference Accelerator.
-                                Supported for inference only.
-            By default, context will be set None i.e., model will be loaded on CPU.
 
     # Returns
         A Keras model instance. If an optimizer was found
@@ -505,7 +493,7 @@ def load_model(filepath, custom_objects=None, compile=True, context=None):
     opened_new_file = not isinstance(filepath, h5py.Group)
     f = h5dict(filepath, 'r')
     try:
-        model = _deserialize_model(f, custom_objects, compile, context)
+        model = _deserialize_model(f, custom_objects, compile)
     finally:
         if opened_new_file:
             f.close()
