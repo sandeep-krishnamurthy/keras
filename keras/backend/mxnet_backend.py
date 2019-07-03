@@ -5668,7 +5668,7 @@ def get_model():
             # set module for prediction only
             if self._context and hasattr(self._context[0], 'device_type') and self._context[0].device_type == 'eia':
                 # Only Prediction is Supported with EI Context
-                self._module = mx.mod.Module(self._pred_mxnet_symbol, data_names=self._data_names,
+                self._predict_only_module = mx.mod.Module(self._pred_mxnet_symbol, data_names=self._data_names,
                                              label_names=self._label_names, context=self._context[0],
                                              fixed_param_names=self._fixed_weights)
             else:
