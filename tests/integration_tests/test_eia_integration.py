@@ -44,7 +44,7 @@ def test_prediction_with_eia():
     dummy_image1 = np.expand_dims(dummy_image1, axis=0)
     dummy_image1 = preprocess_input(dummy_image1)
     preds = model.predict(dummy_image1)
-    assert len(decode_predictions(preds, top=3)) == 3
+    assert len(decode_predictions(preds, top=3)[0]) == 3
 
     # 4. Test batch prediction
     dummy_image2 = np.random.randint(low=0, high=255, size=(224, 224, 3))
@@ -55,7 +55,7 @@ def test_prediction_with_eia():
     batch_preds = model.predict_on_batch(batch_input)
     assert len(batch_preds) == 2
     for pred in decode_predictions(batch_preds, top=3):
-        assert len(pred) == 3
+        assert len(pred[0]) == 3
 
 
 if __name__ == '__main__':
