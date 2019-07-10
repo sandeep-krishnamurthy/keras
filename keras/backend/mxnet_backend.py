@@ -5269,7 +5269,8 @@ def _get_mxnet_context(context):
         # If user has provided a list.
         # List can be:
         #   1. List of GPU IDs - [0, 1, 2, 3]
-        #   2. List of GPU context strings - ["gpu(0)", "gpu(1)"]
+        #   2. List of GPU context strings - ["gpu(0)", "gpu(1)"] or ["gpu0", "gpu1"]
+        #      Or, ["eia(0)", "eia(1)"]
         for context_name in context:
             if isinstance(context_name, Number):
                 mxnet_context.append(mx.gpu(context_name))
