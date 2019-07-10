@@ -5281,6 +5281,12 @@ def _get_mxnet_context(context):
             elif context_name.startswith('gpu'):
                 index = int(context_name[3:])
                 mxnet_context.append(mx.gpu(index))
+            elif context_name.startswith('eia('):
+                index = int(context_name[4:-1])
+                mxnet_context.append(mx.eia(index))
+            elif context_name.startswith('eia'):
+                index = int(context_name[3:])
+                mxnet_context.append(mx.eia(index))
 
     return mxnet_context
 
