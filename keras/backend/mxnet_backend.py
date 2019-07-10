@@ -5264,7 +5264,7 @@ def _get_mxnet_context(context):
         elif context.lower() in mx.Context.devstr2type:
             mxnet_context.append(mx.Context(context.lower()))
         else:
-            raise ValueError("Invalid MXNet context provided - ". context)
+            raise ValueError("Invalid MXNet context provided - ", context)
     else:
         # If user has provided a list.
         # List can be:
@@ -5288,6 +5288,8 @@ def _get_mxnet_context(context):
             elif context_name.startswith('eia'):
                 index = int(context_name[3:])
                 mxnet_context.append(mx.eia(index))
+            else:
+                raise ValueError("Invalid MXNet context provided - ", context)
 
     return mxnet_context
 
