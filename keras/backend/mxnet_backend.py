@@ -5501,8 +5501,7 @@ def get_model():
 
             if not self._module.binded:
                 # allow prediction without compiling the model using different binding
-                if phase == 'pred' and ((hasattr(self._context[0], 'device_type') and
-                                        self._context[0].device_type == 'eia') or not self.compiled):
+                if phase == 'pred' and not self.compiled:
                     self._module.bind(data_shapes=data_shapes, label_shapes=None,
                                       for_training=False)
                     self._set_weights()
@@ -5513,20 +5512,20 @@ def get_model():
 
             # If context is EIA, we will be directly using Module rather than Bucketing Module.
             # Hence, below specialization.
-            if isinstance(self._module, mx.mod.Module):
-                # adjust module data shape
-                if inputs[0].shape[0] != self._module._exec_group.batch_size:
-                    self._module.reshape(data_shapes, label_shapes)
-                    assert inputs[0].shape[0] == self._module._exec_group.batch_size, \
-                        'Reshape failed'
-            else:
+            if isinstance(self._module, mx.mod.BucketingModule):
                 self._module.switch_bucket(phase, data_shapes, label_shapes)
 
                 # adjust module data shape
                 if inputs[0].shape[0] != self._module._curr_module._exec_group.batch_size:
                     self._module._curr_module.reshape(data_shapes, label_shapes)
                     assert inputs[0].shape[0] == self._module._curr_module._exec_group.batch_size, \
-                           'Reshape failed'
+                        'Reshape failed'
+            else:
+                # adjust module data shape
+                if inputs[0].shape[0] != self._module._exec_group.batch_size:
+                    self._module.reshape(data_shapes, label_shapes)
+                    assert inputs[0].shape[0] == self._module._exec_group.batch_size, \
+                        'Reshape failed'
 
             return data, label, phase, data_shapes, label_shapes
 
