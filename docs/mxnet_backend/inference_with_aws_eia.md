@@ -47,7 +47,7 @@ with K.Context("eia"):
 
 ```
 
-## Step 3 - Run Inference
+## Step 3 - Run Inference on EIA
 
 For this tutorial, to demo inference, let us download 2 sample images - Image of a Tusker and a Race car.
 
