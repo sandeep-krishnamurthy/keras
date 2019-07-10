@@ -5258,8 +5258,13 @@ def _get_mxnet_context(context):
         if context.lower().startswith('eia('):
             index = int(context[4:-1])
             mxnet_context.append(mx.eia(index))
-        else:
+        elif context.lower().startswith('gpu('):
+            index = int(context[4:-1])
+            mxnet_context.append(mx.gpu(index))
+        elif context.lower() in mx.Context.devstr2type:
             mxnet_context.append(mx.Context(context.lower()))
+        else:
+            raise ValueError("Invalid MXNet context provided - ". context)
     else:
         # If user has provided a list.
         # List can be:
