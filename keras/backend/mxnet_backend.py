@@ -5258,10 +5258,8 @@ def _get_mxnet_context(context):
         if context.lower().startswith('eia('):
             index = int(context[4:-1])
             mxnet_context.append(mx.eia(index))
-        elif context.lower() == 'eia':
-            mxnet_context.append(mx.eia())
         else:
-            mxnet_context.append(context.lower())
+            mxnet_context.append(mx.Context(context.lower()))
     else:
         # If user has provided a list.
         # List can be:
